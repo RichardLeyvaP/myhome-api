@@ -24,11 +24,9 @@ class DatabaseSeeder extends Seeder
         ]);*/
 
         User::create([
-            'name' => 'Administrador',
+            'name' => 'admin',
             'email' => 'admin@example.com',
-            'password' => Hash::make('admin*2024'),
-            'role' => RoleEnum::ADMIN->value,
-            'status' => StatusEnum::ACTIVE->value
+            'password' => Hash::make('admin*2024')
         ]);
     }
 }

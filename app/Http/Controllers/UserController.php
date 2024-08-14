@@ -9,6 +9,10 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use Knuckles\Scribe\Attributes\BodyParam;
 use Knuckles\Scribe\Attributes\Endpoint;
 use Knuckles\Scribe\Attributes\Group;
@@ -16,66 +20,54 @@ use Knuckles\Scribe\Attributes\Response;
 use Knuckles\Scribe\Attributes\ResponseFromApiResource;
 use Knuckles\Scribe\Attributes\Subgroup;
 
-#[Group('Administrador', 'Endpoints de Administración')]
-#[Subgroup('User', 'Endpoints de Usuarios')]
+/*#[Group('Administrador', 'Endpoints de Administración')]
+#[Subgroup('User', 'Endpoints de Usuarios')]*/
 class UserController extends Controller
 {
-    public function __construct(
-        protected UserRepository $userRepository
-    ) {
+    public function __construct() {
     }
 
-    #[Endpoint('all', 'Obtiene todos los registros')]
-    #[ResponseFromApiResource(UserResource::class, User::class, paginate: AppConstants::PAGE_SIZE)]
+
     public function index()
     {
-        Gate::authorize('viewAny', User::class);
-
-        return UserResource::collection($this->userRepository->all(paginate: AppConstants::PAGE_SIZE));
-    }
-
-    #[Endpoint('store', 'Guarda el registro dado')]
-    #[BodyParam('password_confirmation', 'string', required: true)]
-    #[ResponseFromApiResource(UserResource::class, User::class)]
-    public function store(StoreUserRequest $request)
-    {
-        Gate::authorize('create', User::class);
-
-        return new UserResource($this->userRepository->store($request));
-    }
-
-    #[Endpoint('show', 'Obtiene el registro pertinente')]
-    #[ResponseFromApiResource(UserResource::class, User::class)]
-    public function show(User $user)
-    {
-        Gate::authorize('view', $user);
-
-        return new UserResource($user);
-    }
-
-    #[Endpoint('update', 'Actualiza el registro dado')]
-    #[BodyParam('change_password', 'boolean', required: true)]
-    #[BodyParam('password_confirmation', 'string', required: false)]
-    #[ResponseFromApiResource(UserResource::class, User::class)]
-    public function update(UpdateUserRequest $request, User $user)
-    {
-        Gate::authorize('update', $user);
-
-        return new UserResource($this->userRepository->update($request, $user));
-    }
-
-    #[Endpoint('delete', 'Cierra la sesión actual')]
-    #[Response(['message' => 'Se ha eliminado correctamente.'])]
-    public function destroy(User $user)
-    {
-        Gate::authorize('delete', $user);
-
         try {
-            $this->userRepository->delete($user);
 
-            return response()->json(['message' => __('messages.deleted')]);
+            Log::info("Entra a buscar los usuarios");
+            return response()->json(['users' => User::all()], 200);
         } catch (\Throwable $th) {
-            return response()->json(['message' => __('messages.parent_content_locked')], 400);
+            Log::error($th);
+            return response()->json(['msg' => "Error interno del sistema"], 500);
+        }
+    }
+
+    public function register(Request $request)
+    {
+        Log::info("Registrar usuarios");
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required',
+                'password' => 'required|confirmed',
+                'email' => 'required|max:50|email|unique:users'
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'msg' => $validator->errors()->all()
+                ], 400);
+            }
+
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password)
+            ]);
+
+            return response()->json([
+                'msg' => "Client registrado correctamente!!!",
+                'user' => $user
+            ], 201);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json(['msg' => $th->getMessage() . 'Error interno del sistema'], 500);
         }
     }
 }

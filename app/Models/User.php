@@ -4,7 +4,6 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-use App\Enums\RoleEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -24,8 +23,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
-        'status'
+        'external_id',
+        'external_auth'
     ];
 
     /**
@@ -51,7 +50,7 @@ class User extends Authenticatable
         ];
     }
 
-    //Scopes
+    /*//Scopes
     public function scopeAdmin(Builder $query): Builder
     {
         return $query->where('role', RoleEnum::ADMIN->value);
@@ -71,7 +70,7 @@ class User extends Authenticatable
     public function isUser(): bool
     {
         return $this->role == RoleEnum::USER->value;
-    }
+    }*/
 
     //Relations
 }
