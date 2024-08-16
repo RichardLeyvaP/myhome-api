@@ -19,4 +19,5 @@ return [
     'password_confirmation'     =>  'Las contraseñas no coinciden.',
     //Otros
     'not_found'                 =>  'Este elemento ya no existe en el sistema.',
+    'RoleUpdateOk' => 'Role updated successfully.',
 ];

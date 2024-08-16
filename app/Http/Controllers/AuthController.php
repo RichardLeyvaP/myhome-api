@@ -29,11 +29,10 @@ class AuthController extends Controller
                 'password' => 'required'
             ]);
             if ($validator->fails()) {
-                return response()->json([
-                    'msg' => $validator->errors()->all()
-                ], 400);
+                return response()->json(['msg' => $validator->errors()->all()], 400);
             }
             Log::info("obtener el usuario");
+            $user = [];
             if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
                 $user = Auth::user();
             }
@@ -44,7 +43,6 @@ class AuthController extends Controller
             Log::info($user);
             if ($user) {
                 $token = $user->createToken('auth_token')->plainTextToken;
-                Auth::user();
                 //return $branch;
                 return response()->json([
                     'id' => $user->id,
@@ -53,28 +51,25 @@ class AuthController extends Controller
                     'token' => $token,
                 ], 200, [], JSON_NUMERIC_CHECK);
             } else {
-                return response()->json([
-                    "msg" => "Usuario no registrado"
-                ], 401);
+                return response()->json(["msg" => "Usuario no registrado"], 401);
             }
         } catch (\Throwable $th) {
+            Log::info('AuthController->login');
             Log::error($th);
-            return response()->json(['msg' => $th->getMessage() . 'Error al loguearse'], 500);
+            return response()->json(['msg' =>'ServerError'], 500);
         }
     }
 
     public function logout(Request $request)
     {
-        Log::info("Entra a Cerrar la session en el Sistema");
+        Log::info(auth()->user()->name.'-'."Cierra Session");
         try {
-            $user = auth()->user();
             auth()->user()->tokens()->delete();
-            return response()->json([
-                "msg" => "Session cerrada correctamente"
-            ], 200);
+            return response()->json(["msg" => "CloseSessionOk"], 200);
         } catch (\Throwable $th) {
+            Log::info('AuthController->logout');
             Log::error($th);
-            return response()->json(['msg' => 'Error al cerrar la session'], 500);
+            return response()->json(['msg' => 'ServerError'], 500);
         }
     }
 
@@ -87,9 +82,7 @@ class AuthController extends Controller
 
             // Verificar si $userGoogle es null
             if (!$userGoogle) {
-                return response()->json([
-                    'msg' => 'No se pudo autenticar con Google. Por favor, inténtalo de nuevo.',
-                ], 400);
+                return response()->json(['msg' => 'GoogleNotFound',], 400);
             }
 
             $userExits = User::where('external_id', $userGoogle->id)
@@ -131,11 +124,9 @@ class AuthController extends Controller
             ], 200, [], JSON_NUMERIC_CHECK);
         } catch (\Exception $e) {
             // Captura cualquier excepción que pueda ocurrir durante el proceso
-            Log::error('Error durante la autenticación con Google: ' . $e->getMessage());
-
-            return response()->json([
-                'error' => 'Ocurrió un error durante la autenticación con Google. Por favor, inténtalo de nuevo más tarde.',
-            ], 500);
+            Log::info('AuthController->googleCallback');
+            Log::error($e);
+            return response()->json(['error' => 'ServerError'], 500);
         }
     }
 
@@ -144,16 +135,14 @@ class AuthController extends Controller
         Log::info('Logueo por cuenta de facebook');
         try {
             // Intentar obtener el usuario de Google
-            $userFacebook    = Socialite::driver('facebook')->stateless()->user();
+            $userFacebook = Socialite::driver('facebook')->stateless()->user();
 
-            // Verificar si $userFacebook    es null
-            if (!$userFacebook  ) {
-                return response()->json([
-                    'msg' => 'No se pudo autenticar con facebook. Por favor, inténtalo de nuevo.',
-                ], 400);
+            // Verificar si $userFacebook es null
+            if (!$userFacebook) {
+                return response()->json(['msg' => 'FacebookNotFound'], 400);
             }
 
-            $userExits = User::where('external_id', $userFacebook   ->id)
+            $userExits = User::where('external_id', $userFacebook->id)
                 ->where('external_auth', 'facebook')
                 ->first();
 
@@ -161,19 +150,19 @@ class AuthController extends Controller
                 Auth::login($userExits);
             } else {
                 // Buscar el usuario existente por correo electrónico
-                $emailExits = User::where('email', $userFacebook    ->email)->first();
+                $emailExits = User::where('email', $userFacebook->email)->first();
                 if ($emailExits) {
                     $emailExits->update([
-                        'external_id' => $userFacebook  ->id,
+                        'external_id' => $userFacebook->id,
                         'external_auth' => 'facebook',
                     ]);
                     $userExits = $emailExits;
                     Auth::login($userExits);
                 } else {
                     $userExits = User::create([
-                        'name' => $userFacebook ->name,
-                        'email' => $userFacebook    ->email,
-                        'external_id' => $userFacebook  ->id,
+                        'name' => $userFacebook->name,
+                        'email' => $userFacebook->email,
+                        'external_id' => $userFacebook->id,
                         'external_auth' => 'google',
                     ]);
                     Auth::login($userExits);
@@ -192,11 +181,10 @@ class AuthController extends Controller
             ], 200, [], JSON_NUMERIC_CHECK);
         } catch (\Exception $e) {
             // Captura cualquier excepción que pueda ocurrir durante el proceso
-            Log::error('Error durante la autenticación con Google: ' . $e->getMessage());
+            Log::info('AuthController->facebookCallback');
+            Log::error($e->getMessage());
 
-            return response()->json([
-                'error' => 'Ocurrió un error durante la autenticación con Google. Por favor, inténtalo de nuevo más tarde.',
-            ], 500);
+            return response()->json(['error' => 'ServerError'], 500);
         }
     }
 }

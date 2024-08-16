@@ -37,12 +37,12 @@ return [
     'google' => [
         'client_id' => env('GOOGLE_OAUTH_ID'),
         'client_secret' => env('GOOGLE_OAUTH_KEY'),
-        'redirect' => 'http://127.0.0.1:8000/api/google-callback',
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
     'facebook' => [
         'client_id' => env('FACEBOOK_OAUTH_ID'),
         'client_secret' => env('FACEBOOK_OAUTH_KEY'),
-        'redirect' => 'http://127.0.0.1:8000/api/google-callback',
+        'redirect' => env('FACEBOOK_REDIRECT_URI'),
     ],
 
 

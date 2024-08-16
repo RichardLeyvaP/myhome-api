@@ -224,5 +224,7 @@
     "Sesión cerrada": "Sesión cerrada",
     "Registro eliminado": "Registro eliminado",
     "Activo": "Activo",
-    "Inactivo": "Inactivo"
+    "Inactivo": "Inactivo",
+    "Idioma seleccionado correctamente.": "Idioma seleccionado correctamente.",
+    "RoleUpdateOk" : "Rol modificado correctamente"
 }

@@ -19,7 +19,9 @@ class RoleController extends Controller
             $roles = Role::all();
             return response()->json(['roles' => $roles], 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Error al obtener los roles'], 500);
+            Log::info('RoleController->index');
+            Log::info($e);
+            return response()->json(['error' => 'ServerError'], 500);
         }
     }
 
@@ -35,9 +37,7 @@ class RoleController extends Controller
                 'description' => 'nullable|string',
             ]);
             if ($validator->fails()) {
-                return response()->json([
-                    'msg' => $validator->errors()->all()
-                ], 400);
+                return response()->json(['msg' => $validator->errors()->all()], 400);
             }
     
             $role = Role::create([
@@ -45,10 +45,11 @@ class RoleController extends Controller
                 'description' => $request->description
             ]);
     
-            return response()->json(['msg' => 'Rol creado exitosamente', 'role' => $role], 201);
+            return response()->json(['msg' => 'RoleStoreOk', 'role' => $role], 201);
         } catch (\Exception $e) {
-            Log::error($e);
-            return response()->json(['error' => 'Error al crear el rol'], 500);
+            Log::info('RoleController->store');
+            Log::info($e);
+            return response()->json(['error' => 'ServerError'], 500);
         }
     }
 
@@ -62,16 +63,21 @@ class RoleController extends Controller
             $request->validate([
                 'id' => 'required|numeric'
             ]);
+            $validator = Validator::make($request->all(), [
+                'id' => 'required|numeric'
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['msg' => $validator->errors()->all()], 400);
+            }
             $role = Role::find($request->id);
             if (!$role) {
-                return response()->json([
-                    'msg' => 'Rol no encontrado'
-                ], 404);
+                return response()->json(['msg' => 'RoleNotfound'], 404);
             }
             return response()->json(['rol' => $role], 200);
         } catch (\Exception $e) {
-            Log::error($e);
-            return response()->json(['error' => 'Rol no encontrado'], 404);
+            Log::info('RoleController->show');
+            Log::info($e);
+            return response()->json(['error' => 'ServerError'], 500);
         }
     }
 
@@ -88,26 +94,23 @@ class RoleController extends Controller
                 'description' => 'nullable|string',
             ]);
             if ($validator->fails()) {
-                return response()->json([
-                    'msg' => $validator->errors()->all()
-                ], 400);
+                return response()->json(['msg' => $validator->errors()->all()], 400);
             }
             
             $role = Role::find($request->id);
             if (!$role) {
-                return response()->json([
-                    'msg' => 'Rol no encontrado'
-                ], 404);
+                return response()->json(['msg' => 'RoleNotFound'], 404);
             }
             $role->update([
                 'name' => $request->name,
                 'description' => $request->description
             ]);
     
-            return response()->json(['msg' => 'Rol actualizado exitosamente', 'role' => $role], 200);
+            return response()->json(['msg' => __('RoleUpdateOk'), 'role' => $role], 200);
         } catch (\Exception $e) {
-            Log::error($e);
-            return response()->json(['error' => 'Error al actualizar el rol'], 500);
+            Log::info('RoleController->update');
+            Log::info($e);
+            return response()->json(['error' => 'ServerError'], 500);
         }
     }
 
@@ -118,18 +121,23 @@ class RoleController extends Controller
     {
         Log::info(auth()->user()->name.'-'."Elimina un rol");
         try {
+            $validator = Validator::make($request->all(), [
+                'id' => 'required|numeric'
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['msg' => $validator->errors()->all()], 400);
+            }
             $role = Role::find($request->id);
             if (!$role) {
-                return response()->json([
-                    'msg' => 'Rol no encontrado'
-                ], 404);
+                return response()->json(['msg' => 'RoleNotFound'], 404);
             }
             $role->delete();
     
-            return response()->json(['msg' => 'Rol eliminado exitosamente'], 200);
+            return response()->json(['msg' => 'RoleDeleteOk'], 200);
         } catch (\Exception $e) {
-            Log::error($e);
-            return response()->json(['error' => 'Error al eliminar el rol'], 500);
+            Log::info('RoleController->destroy');
+            Log::info($e);
+            return response()->json(['error' => 'ServerError'], 500);
         }
     }
 }

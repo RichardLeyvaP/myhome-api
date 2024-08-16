@@ -224,5 +224,7 @@
     "Sesión cerrada": "Closed session",
     "Registro eliminado": "Record deleted",
     "Activo": "Active",
-    "Inactivo": "Inactive"
+    "Inactivo": "Inactive",
+    "Idioma seleccionado correctamente.": "Language selected successfully.",
+    "RoleUpdateOk" : "Role updated successfully"
 }
