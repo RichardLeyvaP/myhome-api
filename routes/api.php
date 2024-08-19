@@ -23,6 +23,8 @@ Route::get('/login-facebook', function () {
 });
 Route::get('/google-callback', [AuthController::class, 'googleCallback']);
 Route::get('/facebook-callback', [AuthController::class, 'facebookCallback']);
+Route::get('/google-callback-apk', [AuthController::class, 'googleCallbackApk']);
+Route::get('/facebook-callback-apk', [AuthController::class, 'facebookCallbackApk']);
 
 Route::group( ['middleware' => ["auth:sanctum"]], function(){
     //Seleccionar Idioma

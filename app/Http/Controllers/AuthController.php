@@ -56,13 +56,13 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             Log::info('AuthController->login');
             Log::error($th);
-            return response()->json(['msg' =>'ServerError'], 500);
+            return response()->json(['msg' => 'ServerError'], 500);
         }
     }
 
     public function logout(Request $request)
     {
-        Log::info(auth()->user()->name.'-'."Cierra Session");
+        Log::info(auth()->user()->name . '-' . "Cierra Session");
         try {
             auth()->user()->tokens()->delete();
             return response()->json(["msg" => "CloseSessionOk"], 200);
@@ -182,6 +182,147 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             // Captura cualquier excepción que pueda ocurrir durante el proceso
             Log::info('AuthController->facebookCallback');
+            Log::error($e->getMessage());
+
+            return response()->json(['error' => 'ServerError'], 500);
+        }
+    }
+
+    public function googleCallbackApk(Request $request)
+    {
+        Log::info('Logueo por cuenta de Google desde APK');
+
+        try {
+            // Obtener el token de Google desde la solicitud
+            $idToken = $request->input('id_token');
+
+            // Verificar si se proporcionó el token
+            if (!$idToken) {
+                return response()->json(['error' => 'TokenNoProporcionado'], 400);
+            }
+
+            // Obtener el usuario de Google a partir del token proporcionado
+            $userGoogle = Socialite::driver('google')->stateless()->userFromToken($idToken);
+
+            // Verificar si $userGoogle es null
+            if (!$userGoogle) {
+                return response()->json(['msg' => 'GoogleNotFound'], 400);
+            }
+
+            // Verificar si el usuario ya existe en la base de datos
+            $userExits = User::where('external_id', $userGoogle->id)
+                ->where('external_auth', 'google')
+                ->first();
+
+            if ($userExits) {
+                // Iniciar sesión con el usuario existente
+                Auth::login($userExits);
+            } else {
+                // Verificar si el correo electrónico ya está registrado
+                $emailExits = User::where('email', $userGoogle->email)->first();
+                if ($emailExits) {
+                    // Actualizar el registro existente con la información de Google
+                    $emailExits->update([
+                        'external_id' => $userGoogle->id,
+                        'external_auth' => 'google',
+                    ]);
+                    $userExits = $emailExits;
+                    Auth::login($userExits);
+                } else {
+                    // Crear un nuevo usuario en la base de datos
+                    $userExits = User::create([
+                        'name' => $userGoogle->name,
+                        'email' => $userGoogle->email,
+                        'external_id' => $userGoogle->id,
+                        'external_auth' => 'google',
+                    ]);
+                    Auth::login($userExits);
+                }
+            }
+
+            // Generar el token usando Sanctum
+            $token = $userExits->createToken('auth_token')->plainTextToken;
+
+            // Retornar los datos del usuario junto con el token
+            return response()->json([
+                'id' => $userExits->id,
+                'userName' => $userExits->name,
+                'email' => $userExits->email,
+                'token' => $token,
+            ], 200, [], JSON_NUMERIC_CHECK);
+        } catch (\Exception $e) {
+            // Captura cualquier excepción que pueda ocurrir durante el proceso
+            Log::info('AuthController->googleCallbackApk');
+            Log::error($e);
+            return response()->json(['error' => 'ServerError'], 500);
+        }
+    }
+
+    public function facebookCallbackApk(Request $request)
+    {
+        Log::info('Logueo por cuenta de Facebook desde APK');
+
+        try {
+            // Obtener el access_token de Facebook desde la solicitud
+            $accessToken = $request->input('access_token');
+
+            // Verificar si se proporcionó el token
+            if (!$accessToken) {
+                return response()->json(['error' => 'TokenNoProporcionado'], 400);
+            }
+
+            // Obtener el usuario de Facebook a partir del token proporcionado
+            $userFacebook = Socialite::driver('facebook')->stateless()->userFromToken($accessToken);
+
+            // Verificar si $userFacebook es null
+            if (!$userFacebook) {
+                return response()->json(['msg' => 'FacebookNotFound'], 400);
+            }
+
+            // Verificar si el usuario ya existe en la base de datos
+            $userExits = User::where('external_id', $userFacebook->id)
+                ->where('external_auth', 'facebook')
+                ->first();
+
+            if ($userExits) {
+                // Iniciar sesión con el usuario existente
+                Auth::login($userExits);
+            } else {
+                // Verificar si el correo electrónico ya está registrado
+                $emailExits = User::where('email', $userFacebook->email)->first();
+                if ($emailExits) {
+                    // Actualizar el registro existente con la información de Facebook
+                    $emailExits->update([
+                        'external_id' => $userFacebook->id,
+                        'external_auth' => 'facebook',
+                    ]);
+                    $userExits = $emailExits;
+                    Auth::login($userExits);
+                } else {
+                    // Crear un nuevo usuario en la base de datos
+                    $userExits = User::create([
+                        'name' => $userFacebook->name,
+                        'email' => $userFacebook->email,
+                        'external_id' => $userFacebook->id,
+                        'external_auth' => 'facebook', // Cambiado de 'google' a 'facebook'
+                    ]);
+                    Auth::login($userExits);
+                }
+            }
+
+            // Generar el token usando Sanctum
+            $token = $userExits->createToken('auth_token')->plainTextToken;
+
+            // Retornar los datos del usuario junto con el token
+            return response()->json([
+                'id' => $userExits->id,
+                'userName' => $userExits->name,
+                'email' => $userExits->email,
+                'token' => $token,
+            ], 200, [], JSON_NUMERIC_CHECK);
+        } catch (\Exception $e) {
+            // Captura cualquier excepción que pueda ocurrir durante el proceso
+            Log::info('AuthController->facebookCallbackApk');
             Log::error($e->getMessage());
 
             return response()->json(['error' => 'ServerError'], 500);
