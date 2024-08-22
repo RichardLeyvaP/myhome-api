@@ -2,24 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Role;
+use App\Models\Status;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
-class RoleController extends Controller
+class StatusController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        Log::info(auth()->user()->name.'-'."Entra a buscar los roles");
+        Log::info(auth()->user()->name.'-'."Entra a buscar las estados");
         try {
-            $roles = Role::all();
-            return response()->json(['roles' => $roles], 200);
+            $status = Status::all();
+            return response()->json(['status' => $status]);
         } catch (\Exception $e) {
-            Log::info('RoleController->index');
+            Log::info('StatusController->index');
             Log::info($e);
             return response()->json(['error' => 'ServerError'], 500);
         }
@@ -30,24 +31,26 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        Log::info(auth()->user()->name.'-'."Crea un nuevo rol");
+        Log::info(auth()->user()->name.'-'."Crea un nuevo estado");
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
+                'color' => 'required|string|size:7'
             ]);
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
-    
-            $role = Role::create([
+
+            $Status = Status::create([
                 'name' => $request->name,
-                'description' => $request->description
+                'description' => $request->description,
+                'color' => $request->color
             ]);
     
-            return response()->json(['msg' => 'RoleStoreOk', 'role' => $role], 201);
+            return response()->json(['msg' => 'StatusStoreOk', 'Status' => $Status], 201);
         } catch (\Exception $e) {
-            Log::info('RoleController->store');
+            Log::info('StatusController->store');
             Log::info($e);
             return response()->json(['error' => 'ServerError'], 500);
         }
@@ -58,7 +61,7 @@ class RoleController extends Controller
      */
     public function show(Request $request)
     {
-        Log::info(auth()->user()->name.'-'."Busca un rol");
+        Log::info(auth()->user()->name.'-'."Busca un estado");
         try {
             $validator = Validator::make($request->all(), [
                 'id' => 'required|numeric'
@@ -66,13 +69,13 @@ class RoleController extends Controller
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
-            $role = Role::find($request->id);
-            if (!$role) {
-                return response()->json(['msg' => 'RoleNotfound'], 404);
+            $Status = Status::find($request->id);
+            if (!$Status) {
+                return response()->json(['msg' => 'StatusNotfound'], 404);
             }
-            return response()->json(['rol' => $role], 200);
+            return response()->json(['Status' => $Status], 200);
         } catch (\Exception $e) {
-            Log::info('RoleController->show');
+            Log::info('StatusController->show');
             Log::info($e);
             return response()->json(['error' => 'ServerError'], 500);
         }
@@ -83,29 +86,31 @@ class RoleController extends Controller
      */
     public function update(Request $request)
     {
-        Log::info(auth()->user()->name.'-'."Edita un rol");
+        Log::info(auth()->user()->name.'-'."Edita un estado");
         try {
             $validator = Validator::make($request->all(), [
                 'id' => 'required|numeric',
-                'name' => 'required|string|max:255',
+                'name' => 'sometimes|required|string|max:255',
                 'description' => 'nullable|string',
+                'color' => 'sometimes|required|string|size:7'
             ]);
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
             
-            $role = Role::find($request->id);
-            if (!$role) {
-                return response()->json(['msg' => 'RoleNotFound'], 404);
+            $Status = Status::find($request->id);
+            if (!$Status) {
+                return response()->json(['msg' => 'StatusNotfound'], 404);
             }
-            $role->update([
+            $Status->update([
                 'name' => $request->name,
-                'description' => $request->description
+                'description' => $request->description,
+                'color' => $request->color
             ]);
     
-            return response()->json(['msg' => __('RoleUpdateOk'), 'role' => $role], 200);
+            return response()->json(['msg' => 'StatusUpdateOk', 'Status' => $Status], 200);
         } catch (\Exception $e) {
-            Log::info('RoleController->update');
+            Log::info('StatusController->update');
             Log::info($e);
             return response()->json(['error' => 'ServerError'], 500);
         }
@@ -116,7 +121,7 @@ class RoleController extends Controller
      */
     public function destroy(Request $request)
     {
-        Log::info(auth()->user()->name.'-'."Elimina un rol");
+        Log::info(auth()->user()->name.'-'."Elimina un estado");
         try {
             $validator = Validator::make($request->all(), [
                 'id' => 'required|numeric'
@@ -124,15 +129,15 @@ class RoleController extends Controller
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
-            $role = Role::find($request->id);
-            if (!$role) {
-                return response()->json(['msg' => 'RoleNotFound'], 404);
+            $Status = Status::find($request->id);
+            if (!$Status) {
+                return response()->json(['msg' => 'StatusNotFound'], 404);
             }
-            $role->delete();
+            $Status->delete();
     
-            return response()->json(['msg' => 'RoleDeleteOk'], 200);
+            return response()->json(['msg' => 'StatusDeleteOk'], 200);
         } catch (\Exception $e) {
-            Log::info('RoleController->destroy');
+            Log::info('StatusController->destroy');
             Log::info($e);
             return response()->json(['error' => 'ServerError'], 500);
         }

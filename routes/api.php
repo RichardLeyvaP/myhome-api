@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\PriorityController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\StatusController;
 use App\Http\Controllers\UserController;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -28,7 +31,8 @@ Route::get('/facebook-callback-apk', [AuthController::class, 'facebookCallbackAp
 
 Route::group( ['middleware' => ["auth:sanctum"]], function(){
     //Seleccionar Idioma
-    Route::post('/select-language', function (Request $request) {
+    Route::post('/select-language', [UserController::class, 'selectLanguage']);
+    /*Route::post('/select-language', function (Request $request) {
     $user = Auth::user();
     $locale = $request->input('locale');
 
@@ -45,7 +49,7 @@ Route::group( ['middleware' => ["auth:sanctum"]], function(){
     session(['locale' => $locale]);
 
     return response()->json(['message' => __('Idioma seleccionado correctamente.')]);
-    });
+    });*/
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
     
     //Usuario
@@ -57,4 +61,25 @@ Route::group( ['middleware' => ["auth:sanctum"]], function(){
     Route::get('role-show', [RoleController::class, 'show'])->name('show');
     Route::put('role', [RoleController::class, 'update'])->name('update');
     Route::post('role-destroy', [RoleController::class, 'destroy'])->name('destroy');
+
+    //Categories
+    Route::get('category', [CategoryController::class, 'index'])->name('index');
+    Route::post('category', [CategoryController::class, 'store'])->name('store');
+    Route::get('category-show', [CategoryController::class, 'show'])->name('show');
+    Route::post('category-updated', [CategoryController::class, 'update'])->name('update');
+    Route::post('category-destroy', [CategoryController::class, 'destroy'])->name('destroy');
+
+    //Categories
+    Route::get('status', [StatusController::class, 'index'])->name('index');
+    Route::post('status', [StatusController::class, 'store'])->name('store');
+    Route::get('status-show', [StatusController::class, 'show'])->name('show');
+    Route::put('status', [StatusController::class, 'update'])->name('update');
+    Route::post('status-destroy', [StatusController::class, 'destroy'])->name('destroy');
+
+    //Priorities
+    Route::get('priority', [PriorityController::class, 'index'])->name('index');
+    Route::post('priority', [PriorityController::class, 'store'])->name('store');
+    Route::get('priority-show', [PriorityController::class, 'show'])->name('show');
+    Route::put('priority', [PriorityController::class, 'update'])->name('update');
+    Route::post('priority-destroy', [PriorityController::class, 'destroy'])->name('destroy');
 });

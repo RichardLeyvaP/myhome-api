@@ -10,6 +10,8 @@ use App\Http\Resources\UserResource;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -69,5 +71,27 @@ class UserController extends Controller
             Log::error($th);
             return response()->json(['msg' => $th->getMessage() . 'Error interno del sistema'], 500);
         }
+    }
+
+    public function selectLanguage(Request $request)
+    {
+        $user = Auth::user();
+        $locale = $request->input('locale');
+
+        if (!in_array($locale, ['en', 'es', 'pt'])) {
+            $locale = 'es';
+        }
+
+        Log::info('Idioma seleccionado');
+        Log::info($locale);
+
+        // Actualizar el idioma del usuario
+        $user->language = $locale;
+        $user->save();
+
+        App::setLocale($locale);
+        session(['locale' => $locale]);
+
+        return response()->json(['message' => __('Idioma seleccionado correctamente.')]);
     }
 }

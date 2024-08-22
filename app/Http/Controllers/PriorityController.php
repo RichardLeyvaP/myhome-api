@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Role;
+use App\Models\Priority;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
-class RoleController extends Controller
+class PriorityController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        Log::info(auth()->user()->name.'-'."Entra a buscar los roles");
+        Log::info(auth()->user()->name.'-'."Entra a buscar las prioridades");
         try {
-            $roles = Role::all();
-            return response()->json(['roles' => $roles], 200);
+            $status = Priority::all();
+            return response()->json(['priorities' => $status]);
         } catch (\Exception $e) {
-            Log::info('RoleController->index');
+            Log::info('PriorityController->index');
             Log::info($e);
             return response()->json(['error' => 'ServerError'], 500);
         }
@@ -30,24 +30,28 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        Log::info(auth()->user()->name.'-'."Crea un nuevo rol");
+        Log::info(auth()->user()->name.'-'."Crea una nueva prioridad");
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
+                'color' => 'required|string|size:7',
+                'level' => 'required|integer',
             ]);
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
-    
-            $role = Role::create([
+
+            $priorities = Priority::create([
                 'name' => $request->name,
-                'description' => $request->description
+                'description' => $request->description,
+                'color' => $request->color,
+                'level' => $request->level
             ]);
     
-            return response()->json(['msg' => 'RoleStoreOk', 'role' => $role], 201);
+            return response()->json(['msg' => 'PrioritiesStoreOk', 'Priorities' => $priorities], 201);
         } catch (\Exception $e) {
-            Log::info('RoleController->store');
+            Log::info('PriorityController->store');
             Log::info($e);
             return response()->json(['error' => 'ServerError'], 500);
         }
@@ -58,7 +62,7 @@ class RoleController extends Controller
      */
     public function show(Request $request)
     {
-        Log::info(auth()->user()->name.'-'."Busca un rol");
+        Log::info(auth()->user()->name.'-'."Busca una prioridad");
         try {
             $validator = Validator::make($request->all(), [
                 'id' => 'required|numeric'
@@ -66,46 +70,50 @@ class RoleController extends Controller
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
-            $role = Role::find($request->id);
-            if (!$role) {
-                return response()->json(['msg' => 'RoleNotfound'], 404);
+            $priorities = Priority::find($request->id);
+            if (!$priorities) {
+                return response()->json(['msg' => 'PriorityNotfound'], 404);
             }
-            return response()->json(['rol' => $role], 200);
+            return response()->json(['Priorities' => $priorities], 200);
         } catch (\Exception $e) {
-            Log::info('RoleController->show');
+            Log::info('PriorityController->show');
             Log::info($e);
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
+
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request)
     {
-        Log::info(auth()->user()->name.'-'."Edita un rol");
+        Log::info(auth()->user()->name.'-'."Edita una prioridad");
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required|numeric',
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
+                'color' => 'required|string|size:7',
+                'level' => 'required|integer',
             ]);
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
             
-            $role = Role::find($request->id);
-            if (!$role) {
-                return response()->json(['msg' => 'RoleNotFound'], 404);
+            $priorities = Priority::find($request->id);
+            if (!$priorities) {
+                return response()->json(['msg' => 'PriorityNotfound'], 404);
             }
-            $role->update([
+            $priorities->update([
                 'name' => $request->name,
-                'description' => $request->description
+                'description' => $request->description,
+                'color' => $request->color,
+                'level' => $request->level,
             ]);
     
-            return response()->json(['msg' => __('RoleUpdateOk'), 'role' => $role], 200);
+            return response()->json(['msg' => 'PriorityUpdateOk', 'Priorities' => $priorities], 200);
         } catch (\Exception $e) {
-            Log::info('RoleController->update');
+            Log::info('PriorityController->update');
             Log::info($e);
             return response()->json(['error' => 'ServerError'], 500);
         }
@@ -116,7 +124,7 @@ class RoleController extends Controller
      */
     public function destroy(Request $request)
     {
-        Log::info(auth()->user()->name.'-'."Elimina un rol");
+        Log::info(auth()->user()->name.'-'."Elimina una prioridad");
         try {
             $validator = Validator::make($request->all(), [
                 'id' => 'required|numeric'
@@ -124,15 +132,15 @@ class RoleController extends Controller
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
-            $role = Role::find($request->id);
-            if (!$role) {
-                return response()->json(['msg' => 'RoleNotFound'], 404);
+            $priorities = Priority::find($request->id);
+            if (!$priorities) {
+                return response()->json(['msg' => 'PriorityNotFound'], 404);
             }
-            $role->delete();
+            $priorities->delete();
     
-            return response()->json(['msg' => 'RoleDeleteOk'], 200);
+            return response()->json(['msg' => 'PriorityDeleteOk'], 200);
         } catch (\Exception $e) {
-            Log::info('RoleController->destroy');
+            Log::info('PriorityController->destroy');
             Log::info($e);
             return response()->json(['error' => 'ServerError'], 500);
         }
