@@ -15,6 +15,4 @@ class Status extends Model
         'color'
     ];
 
-    protected $table = 'status';
-
 }
