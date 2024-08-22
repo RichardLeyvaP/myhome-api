@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::table('users', function(Blueprint $table){
             $table->string('password')->nullble()->change();
-            $table->string('external_id')->nullble();
-            $table->string('external_auth')->nullble();
+            $table->string('external_id')->nullable();
+            $table->string('external_auth')->nullable();
         });
     }
 
