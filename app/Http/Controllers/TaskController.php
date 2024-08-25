@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Activitylog\Models\Activity;
 
 class TaskController extends Controller
 {
@@ -305,6 +306,36 @@ class TaskController extends Controller
             return response()->json(['msg' => 'TaskDeleteOk'], 200);
         } catch (\Exception $e) {
             Log::info('TaskController->destroy');
+            Log::info($e);
+            return response()->json(['error' => 'ServerError'], 500);
+        }
+    }
+
+    public function getTaskHistory(Request $request)
+    {
+        Log::info(auth()->user()->name.'-'."Busca el historial de una tarea");
+        try {
+            $validator = Validator::make($request->all(), [
+                'id' => 'required|numeric|exists:tasks,id'
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['msg' => $validator->errors()->all()], 400);
+            }
+            // Encuentra la tarea
+            $task = Task::findOrFail($request->id);
+            if (!$task) {
+                return response()->json(['msg' => 'TaskNotFound'], 404);
+            }
+
+               // Obtiene el historial de actividades para la tarea
+                $activities = Activity::where('subject_type', Task::class)
+                ->where('subject_id', $task->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+    
+            return response()->json(['activities' => $activities], 200);
+        } catch (\Exception $e) {
+            Log::info('TaskController->getTaskHistory');
             Log::info($e);
             return response()->json(['error' => 'ServerError'], 500);
         }

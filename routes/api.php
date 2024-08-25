@@ -90,4 +90,5 @@ Route::group( ['middleware' => ["auth:sanctum"]], function(){
     Route::get('task-show', [TaskController::class, 'show'])->name('show');
     Route::post('task-updated', [TaskController::class, 'update'])->name('update');
     Route::post('task-destroy', [TaskController::class, 'destroy'])->name('destroy');
+    Route::get('task-history', [TaskController::class, 'getTaskHistory'])->name('getTaskHistory');
 });

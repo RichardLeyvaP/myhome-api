@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Models\Activity;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Task extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $fillable = [
         'title',
@@ -60,5 +63,38 @@ class Task extends Model
     public function children()
     {
         return $this->hasMany(Task::class, 'parent_id');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll() // Puedes usar logOnly para registrar solo ciertos atributos
+            ->logOnly([
+                'title',
+                'description',
+                'start_date',
+                'end_date',
+                'priority_id',
+                'parent_id',
+                'status_id',
+                'category_id',
+                'recurrence',
+                'estimated_time',
+                'comments',
+                'attachments',
+                'geo_location',
+            ])
+            ->setDescriptionForEvent(fn(string $eventName) => "Este modelo fue {$eventName}");
+    }
+
+    /**
+     * Personaliza la actividad registrada.
+     *
+     * @param Activity $activity
+     * @param string $eventName
+     */
+    public function tapActivity(Activity $activity, string $eventName)
+    {
+        $activity->properties = $activity->properties->put('model_id', $this->id);
     }
 }
