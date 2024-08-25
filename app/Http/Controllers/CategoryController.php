@@ -20,25 +20,26 @@ class CategoryController extends Controller
         try {
             //$categories = Category::all();
             $categories = Category::with('parent', 'children')->get()->map(function ($category) {
+                $translatedAttributes = $category->getTranslatedCategories();
                 return [
                     'id' => $category->id,
-                    'name' => $category->name,
-                    'description' => $category->description,
+                    'name' => $translatedAttributes['name'],
+                    'description' => $translatedAttributes['description'],
                     'color' => $category->color,
                     'icon' => $category->icon,
                     'parent_id' => $category->parent_id,
                     'parent' => $category->parent ? [
                         'id' => $category->parent->id,
                         'name' => $category->parent->name,
-                        'description' => $category->description,
+                        'description' => $category->parent->description,
                         'color' => $category->parent->color,
                         'icon' => $category->parent->icon,
                         'parent_id' => $category->parent->parent_id,
                     ] : null,
-                    'children' => $category->children->map(function ($child) {
+                    'children' => $category->children->map(function ($child) use ($translatedAttributes) {
                         return [
                             'id' => $child->id,
-                            'name' => $child->name,
+                            'name' => $$child->name,
                             'description' => $child->description,
                             'color' => $child->color,
                             'icon' => $child->icon,

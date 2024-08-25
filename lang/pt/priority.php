@@ -1,14 +1,14 @@
 <?php
   return [
-      'low' => [
+      'Baja' => [
           'name' => 'Baixa',
           'description' => 'Prioridade baixa'
       ],
-      'medium' => [
+      'Madia' => [
           'name' => 'Média',
           'description' => 'Prioridade média'
       ],
-      'high' => [
+      'Alta' => [
           'name' => 'Alta',
           'description' => 'Prioridade alta'
       ],

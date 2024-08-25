@@ -1,14 +1,17 @@
 <?php
+
+declare(strict_types=1);
+
   return [
-      'low' => [
+      'Baja' => [
           'name' => 'Low',
           'description' => 'Low priority',
       ],
-      'medium' => [
+      'Media' => [
           'name' => 'Medium',
           'description' => 'Medium priority',
       ],
-      'high' => [
+      'Alta' => [
           'name' => 'High',
           'description' => 'High priority',
       ],

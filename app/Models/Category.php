@@ -37,4 +37,22 @@ class Category extends Model
         return $this->hasMany(Category::class, 'parent_id');
     }
 
+    public function getTranslatedCategories()
+    {
+        $translations = __('category.' . $this->name);
+
+        return [
+            'name' => $translations['name'] ?? $this->name,
+            'description' => $translations['description'] ?? $this->description,
+        ];
+    }
+
+    /**
+     * Relación con la tabla 'tasks'.
+     */
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
+
 }

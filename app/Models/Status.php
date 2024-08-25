@@ -15,4 +15,22 @@ class Status extends Model
         'color'
     ];
 
+    public function getTranslatedStatus()
+    {
+        $translations = __('status.' . $this->name);
+
+        return [
+            'name' => $translations['name'] ?? $this->name,
+            'description' => $translations['description'] ?? $this->description,
+        ];
+    }
+
+    /**
+     * Relación con la tabla 'tasks'.
+     */
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
+
 }

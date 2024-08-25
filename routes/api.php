@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PriorityController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StatusController;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -82,4 +83,11 @@ Route::group( ['middleware' => ["auth:sanctum"]], function(){
     Route::get('priority-show', [PriorityController::class, 'show'])->name('show');
     Route::put('priority', [PriorityController::class, 'update'])->name('update');
     Route::post('priority-destroy', [PriorityController::class, 'destroy'])->name('destroy');
+
+    //tasks
+    Route::get('task', [TaskController::class, 'index'])->name('index');
+    Route::post('task', [TaskController::class, 'store'])->name('store');
+    Route::get('task-show', [TaskController::class, 'show'])->name('show');
+    Route::post('task-updated', [TaskController::class, 'update'])->name('update');
+    Route::post('task-destroy', [TaskController::class, 'destroy'])->name('destroy');
 });

@@ -17,10 +17,21 @@ class PriorityController extends Controller
         Log::info(auth()->user()->name.'-'."Entra a buscar las prioridades");
         try {
             $priorities = Priority::all();
-            foreach ($priorities as $priority) {
-                $translatedAttributes = $priority->getTranslatedAttributes();
-            }
-            return response()->json(['priorities' => $translatedAttributes]);
+            $translatedPriorities = [];
+
+        foreach ($priorities as $priority) {
+            $translatedAttributes = $priority->getTranslatedAttributes();
+            $translatedPriorities[] = [
+                'id' => $priority->id,
+                'name' => $translatedAttributes['name'],
+                'description' => $translatedAttributes['description'],
+                'color' => $priority->color,
+                'level' => $priority->level,
+                'created_at' => $priority->created_at,
+                'updated_at' => $priority->updated_at,
+            ];
+        }
+            return response()->json(['priorities' => $translatedPriorities]);
         } catch (\Exception $e) {
             Log::info('PriorityController->index');
             Log::info($e);

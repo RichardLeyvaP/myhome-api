@@ -18,17 +18,19 @@ class Priority extends Model
 
     public function getTranslatedAttributes()
     {
-        $user = auth()->user(); // O bien, puedes obtener el usuario de alguna otra manera
-
-        if ($user) {
-            // Configura el idioma del usuario
-            app()->setLocale($user->language);
-        }
-        $translations = __('priorities.' . $this->code);
+        $translations = __('priority.' . $this->name);
 
         return [
-            'name' => $translations['name'] ?? $this->code,
-            'description' => $translations['description'] ?? '',
+            'name' => $translations['name'] ?? $this->name,
+            'description' => $translations['description'] ?? $this->description,
         ];
+    }
+
+    /**
+     * Relación con la tabla 'tasks'.
+     */
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
     }
 }
