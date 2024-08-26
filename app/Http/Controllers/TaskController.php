@@ -16,7 +16,7 @@ class TaskController extends Controller
      */
     public function index()
     {
-        Log::info(auth()->user()->name.'-'."Entra a buscar las categorias");
+        Log::info(auth()->user()->name.'-'."Entra a buscar las tareas");
         try {
             $tasks = Task::with('parent', 'children')->get()->map(function ($task) {
                 return [
@@ -142,7 +142,7 @@ class TaskController extends Controller
      */
     public function show(Request $request)
     {
-        Log::info(auth()->user()->name.'-'."Busca una categorìa");
+        Log::info(auth()->user()->name.'-'."Busca una tarea");
         try {
             $validator = Validator::make($request->all(), [
                 'id' => 'required|numeric|exists:tasks,id'
