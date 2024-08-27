@@ -21,13 +21,14 @@ use Knuckles\Scribe\Attributes\Group;
 use Knuckles\Scribe\Attributes\Response;
 use Knuckles\Scribe\Attributes\ResponseFromApiResource;
 use Knuckles\Scribe\Attributes\Subgroup;
+use Spatie\Activitylog\Models\Activity;
 
 /*#[Group('Administrador', 'Endpoints de Administración')]
 #[Subgroup('User', 'Endpoints de Usuarios')]*/
+
 class UserController extends Controller
 {
-    public function __construct() {
-    }
+    public function __construct() {}
 
 
     public function index()
@@ -75,23 +76,72 @@ class UserController extends Controller
 
     public function selectLanguage(Request $request)
     {
-        $user = Auth::user();
+        $modelUser = Auth::user();      
+
+        $user = User::find($modelUser->id);
         $locale = $request->input('locale');
 
         if (!in_array($locale, ['en', 'es', 'pt'])) {
             $locale = 'es';
         }
+        
 
         Log::info('Idioma seleccionado');
         Log::info($locale);
 
+
+        // Guardar los valores originales antes de hacer cambios
+        //$originalValues = $user->getOriginal();
+
         // Actualizar el idioma del usuario
         $user->language = $locale;
+
+        // Obtener solo los valores que han cambiado
+        //$changes = $user->getDirty();
+
+         // Registrar la actividad
+            /*activity()
+            ->performedOn($user)
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'old_values' => Arr::only($originalValues, array_keys($changes)),
+                'new_values' => $changes,
+            ])
+            ->log('Este modelo fue selectLanguage');*/
+
+                App::setLocale($locale);
+                session(['locale' => $locale]);
+
+                
         $user->save();
 
-        App::setLocale($locale);
-        session(['locale' => $locale]);
-
         return response()->json(['message' => __('Idioma seleccionado correctamente.')]);
+    }
+
+    public function getUserLanguageChanges(Request $request)
+    {
+        Log::info(auth()->user()->name.'-'."Busca los cambios de un usuario en la tabla users");
+        try {
+            $validator = Validator::make($request->all(), [
+                'id' => 'required|numeric'
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['msg' => $validator->errors()->all()], 400);
+            }
+        $user = User::findOrFail($request->id);
+
+        // Obtener los registros de actividad relacionados con cambios de idioma hechos por el usuario
+        // Obtiene el historial de actividades para la tarea
+        $activities = Activity::where('subject_type', User::class)
+        ->where('subject_id', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+        return response()->json(['activities' => $activities], 200);
+    } catch (\Exception $e) {
+        Log::info('UserController->show');
+        Log::info($e);
+        return response()->json(['error' => 'ServerError'], 500);
+    }
     }
 }

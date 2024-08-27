@@ -68,7 +68,7 @@ class Task extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logAll() // Puedes usar logOnly para registrar solo ciertos atributos
+            //->logAll() // Puedes usar logOnly para registrar solo ciertos atributos
             ->logOnly([
                 'title',
                 'description',
@@ -84,7 +84,8 @@ class Task extends Model
                 'attachments',
                 'geo_location',
             ])
-            ->setDescriptionForEvent(fn(string $eventName) => "Este modelo fue {$eventName}");
+            ->setDescriptionForEvent(fn(string $eventName) => "Este modelo fue {$eventName}")
+            ->logOnlyDirty();
     }
 
     /**

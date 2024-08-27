@@ -55,6 +55,7 @@ Route::group( ['middleware' => ["auth:sanctum"]], function(){
     
     //Usuario
     Route::get('user', [UserController::class, 'index'])->name('user');
+    Route::get('get-user-language-changes', [UserController::class, 'getUserLanguageChanges'])->name('getUserLanguageChanges');
 
     //Roles
     Route::get('role', [RoleController::class, 'index'])->name('index');

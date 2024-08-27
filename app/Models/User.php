@@ -9,10 +9,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -50,6 +53,33 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /*public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            //->logAll() // Puedes usar logOnly para registrar solo ciertos atributos
+            ->logOnly([
+                'name',
+                'email',
+                'password',
+                'external_id',
+                'external_auth',
+                'language'
+            ])
+            ->setDescriptionForEvent(fn(string $eventName) => "Este modelo fue {$eventName}")
+            ->logOnlyDirty();
+    }
+
+    /**
+     * Personaliza la actividad registrada.
+     *
+     * @param Activity $activity
+     * @param string $eventName
+     */
+    /*public function tapActivity(Activity $activity, string $eventName)
+    {
+        $activity->properties = $activity->properties->put('model_id', $this->id);
+    }*/
 
     /*//Scopes
     public function scopeAdmin(Builder $query): Builder
