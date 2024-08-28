@@ -61,7 +61,7 @@ class RoleController extends Controller
         Log::info(auth()->user()->name.'-'."Busca un rol");
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required|numeric'
+                'id' => 'required|numeric|exists:roles,id',
             ]);
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
@@ -86,7 +86,7 @@ class RoleController extends Controller
         Log::info(auth()->user()->name.'-'."Edita un rol");
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required|numeric',
+                'id' => 'required|numeric|exists:roles,id',
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
             ]);
@@ -119,7 +119,7 @@ class RoleController extends Controller
         Log::info(auth()->user()->name.'-'."Elimina un rol");
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required|numeric'
+                'id' => 'required|numeric|exists:roles,id',
             ]);
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
