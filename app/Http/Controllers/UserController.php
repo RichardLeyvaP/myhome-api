@@ -123,7 +123,7 @@ class UserController extends Controller
         Log::info(auth()->user()->name.'-'."Busca los cambios de un usuario en la tabla users");
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required|numeric'
+                'id' => 'required|numeric|exists:users,id'
             ]);
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
