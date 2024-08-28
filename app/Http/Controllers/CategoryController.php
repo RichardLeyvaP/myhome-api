@@ -112,7 +112,7 @@ class CategoryController extends Controller
         Log::info(auth()->user()->name.'-'."Busca una categoria");
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required|numeric'
+                'id' => 'required|numeric|exists:categories,id'
             ]);
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
@@ -164,7 +164,7 @@ class CategoryController extends Controller
         Log::info(auth()->user()->name.'-'."Edita una categoria");
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required|numeric',
+                'id' => 'required|numeric|exists:categories,id',
                 'name' => 'sometimes|required|string|max:255',
                 'description' => 'nullable|string',
                 'color' => 'sometimes|required|string|size:7',
@@ -214,7 +214,7 @@ class CategoryController extends Controller
         Log::info(auth()->user()->name.'-'."Elimina una categoria");
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required|numeric'
+                'id' => 'required|numeric|exists:categories,id',
             ]);
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
