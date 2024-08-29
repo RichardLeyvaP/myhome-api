@@ -15,7 +15,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens, LogsActivity;
+    use HasFactory, Notifiable, HasApiTokens/*, LogsActivity*/;
 
     /**
      * The attributes that are mass assignable.
@@ -68,7 +68,7 @@ class User extends Authenticatable
             ])
             ->setDescriptionForEvent(fn(string $eventName) => "Este modelo fue {$eventName}")
             ->logOnlyDirty();
-    }
+    }*/
 
     /**
      * Personaliza la actividad registrada.

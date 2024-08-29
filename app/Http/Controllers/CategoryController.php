@@ -6,6 +6,7 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -184,10 +185,13 @@ class CategoryController extends Controller
             $filename = $request->icon;
             if ($request->hasFile('icon'))
             if ($category->icon != 'categories/default_profile.jpg') {
-                $destination = public_path("storage\\" . $category->icon);
+                if ($category->icon && Storage::disk('public')->exists($category->icon)) {
+                    Storage::disk('public')->delete($category->icon);
+                }
+                /*$destination = public_path("storage\\" . $category->icon);
                 if (File::exists($destination)) {
                     File::delete($destination);
-                }
+                }*/
                 $filename = $request->file('icon')->storeAs('categories', $category->id . '.' . $request->file('icon')->extension(), 'public');
             }
             $category->update([
@@ -224,9 +228,12 @@ class CategoryController extends Controller
                 return response()->json(['msg' => 'CategoryNotFound'], 404);
             }
             if ($category->icon != 'categories/default_profile.jpg') {
-                $destination = public_path("storage\\" . $category->icon);
+                /*$destination = public_path("storage\\" . $category->icon);
                 if (File::exists($destination)) {
                     File::delete($destination);
+                }*/
+                if ($category->icon && Storage::disk('public')->exists($category->icon)) {
+                    Storage::disk('public')->delete($category->icon);
                 }
             }
             $category->delete();

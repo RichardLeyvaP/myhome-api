@@ -6,6 +6,7 @@ use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Activitylog\Models\Activity;
 
@@ -247,11 +248,15 @@ class TaskController extends Controller
             }
             $filename = $task->attachments;
             if ($request->hasFile('attachments')){
+                // Verificar si el archivo existe y eliminarlo
+            if ($task->attachments && Storage::disk('public')->exists($task->attachments)) {
+                Storage::disk('public')->delete($task->attachments);
+            }
             //if ($category->icon != 'categories/default_profile.jpg') {
-                $destination = public_path("storage\\" . $task->attachments);
+                /*$destination = public_path("storage\\" . $task->attachments);
                 if (File::exists($destination)) {
                     File::delete($destination);
-                }
+                }*/
                 $filename = $request->file('attachments')->storeAs('tasks', $task->id . '.' . $request->file('attachments')->extension(), 'public');
             }
             $task->update([
@@ -296,10 +301,13 @@ class TaskController extends Controller
                 return response()->json(['msg' => 'TaskNotFound'], 404);
             }
 
-                $destination = public_path("storage\\" . $task->attachments);
+            if ($task->attachments && Storage::disk('public')->exists($task->attachments)) {
+                Storage::disk('public')->delete($task->attachments);
+            }
+                /*$destination = public_path("storage\\" . $task->attachments);
                 if (File::exists($destination)) {
                     File::delete($destination);
-                }
+                }*/
 
             $task->delete();
     
