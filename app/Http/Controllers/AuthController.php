@@ -22,7 +22,7 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        Log::info("Entra a loguearse al Sistema");
+        Log::info("Entra a loguearse al Sistema desde la administración");
         try {
             $validator = Validator::make($request->all(), [
                 'email' => 'required',
@@ -62,7 +62,7 @@ class AuthController extends Controller
 
     public function loginApk(Request $request)
     {
-        Log::info("Entra a loguearse al Sistema");
+        Log::info("Entra a loguearse al Sistema desde el apk");
         try {
             $validator = Validator::make($request->all(), [
                 'email' => 'required',
