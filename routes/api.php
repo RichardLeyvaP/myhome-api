@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
 
 Route::post('login', [AuthController::class, 'login'])->name('login');
+Route::post('login-apk', [AuthController::class, 'loginApk'])->name('loginApk');
 Route::post('register', [UserController::class, 'register'])->name('register');
 
 Route::get('/login-google', function () {

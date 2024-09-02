@@ -71,7 +71,11 @@ class TaskController extends Controller
                     }),
                 ];
             });
-            return response()->json(['tasks' => $tasks]);
+            if ($tasks->isEmpty()) {
+                return response()->json(['tasks' => $tasks], 204);
+            }
+        
+            return response()->json(['tasks' => $tasks], 200);
         } catch (\Exception $e) {
             Log::info('TaskController->index');
             Log::info($e);
@@ -152,6 +156,9 @@ class TaskController extends Controller
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
             $task = Task::with('parent', 'children')->findOrFail($request->id);
+            if (!$task) {
+                return response()->json(['msg' => 'TaskNotfound'], 404);
+            }
 
             // Mapear los datos de la tarea y sus relaciones
         $taskData = [
@@ -204,10 +211,7 @@ class TaskController extends Controller
                 ];
             }),
         ];
-            if (!$task) {
-                return response()->json(['msg' => 'TaskNotfound'], 404);
-            }
-            return response()->json(['task' => $task], 200);
+            return response()->json(['task' => $taskData], 200);
         } catch (\Exception $e) {
             Log::info('TaskController->show');
             Log::info($e);

@@ -60,6 +60,46 @@ class AuthController extends Controller
         }
     }
 
+    public function loginApk(Request $request)
+    {
+        Log::info("Entra a loguearse al Sistema");
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required',
+                'password' => 'required'
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['msg' => $validator->errors()->all()], 400);
+            }
+            Log::info("obtener el usuario");
+            $user = [];
+            if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+                $user = Auth::user();
+            }
+            // Intentar la autenticación con el nombre de usuario
+            elseif (Auth::attempt(['name' => $request->email, 'password' => $request->password])) {
+                $user = Auth::user();
+            }
+            Log::info($user);
+            if ($user) {
+                $token = $user->createToken('auth_token')->plainTextToken;
+                //return $branch;
+                return response()->json([
+                    'id' => $user->id,
+                    'userName' => $user->name,
+                    'email' => $user->email,
+                    'token' => $token,
+                ], 200, [], JSON_NUMERIC_CHECK);
+            } else {
+                return response()->json(["msg" => "Usuario no registrado"], 401);
+            }
+        } catch (\Throwable $th) {
+            Log::info('AuthController->login');
+            Log::error($th);
+            return response()->json(['msg' => 'ServerError'], 500);
+        }
+    }
+
     public function logout(Request $request)
     {
         Log::info(auth()->user()->name . '-' . "Cierra Session");
