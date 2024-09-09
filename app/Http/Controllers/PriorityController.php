@@ -31,7 +31,7 @@ class PriorityController extends Controller
                 'updated_at' => $priority->updated_at,
             ];
         }
-            return response()->json(['priorities' => $translatedPriorities]);
+            return response()->json(['priorities' => $translatedPriorities], 200);
         } catch (\Exception $e) {
             Log::info('PriorityController->index');
             Log::info($e);
