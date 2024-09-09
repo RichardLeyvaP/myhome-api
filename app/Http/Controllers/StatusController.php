@@ -31,7 +31,7 @@ class StatusController extends Controller
             'updated_at' => $state->updated_at,
         ];
     }
-            return response()->json(['status' => $translatedPriorities]);
+            return response()->json(['status' => $translatedPriorities], 200);
         } catch (\Exception $e) {
             Log::info('StatusController->index');
             Log::info($e);

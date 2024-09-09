@@ -50,7 +50,7 @@ class CategoryController extends Controller
                 ];
             });
             
-            return response()->json(['categories' => $categories]);
+            return response()->json(['categories' => $categories], 200);
         } catch (\Exception $e) {
             Log::info('CategoryController->index');
             Log::info($e);
