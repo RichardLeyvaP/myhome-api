@@ -40,7 +40,7 @@ class CategoryController extends Controller
                     'children' => $category->children->map(function ($child) use ($translatedAttributes) {
                         return [
                             'id' => $child->id,
-                            'name' => $$child->name,
+                            'name' => $child->name,
                             'description' => $child->description,
                             'color' => $child->color,
                             'icon' => $child->icon,
