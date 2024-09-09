@@ -35,22 +35,6 @@ class TaskController extends Controller
                     'attachments' => $task->attachments,
                     'geo_location' => $task->geo_location,
                     'parent_id' => $task->parent_id,
-                    'parent' => $task->parent ? [
-                        'id' => $task->parent->id,
-                        'title' => $task->parent->title,
-                        'description' => $task->parent->description,
-                        'start_date' => $task->parent->start_date,
-                        'end_date' => $task->parent->end_date,
-                        'priority_id' => $task->parent->priority_id,
-                        'status_id' => $task->parent->status_id,
-                        'category_id' => $task->parent->category_id,
-                        'recurrence' => $task->parent->recurrence,
-                        'estimated_time' => $task->parent->estimated_time,
-                        'comments' => $task->parent->comments,
-                        'attachments' => $task->parent->attachments,
-                        'geo_location' => $task->parent->geo_location,
-                        'parent_id' => $task->parent->parent_id,
-                    ] : null,
                     'children' => $task->children->map(function ($child) {
                         return [
                             'id' => $child->id,
