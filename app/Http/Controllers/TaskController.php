@@ -19,7 +19,39 @@ class TaskController extends Controller
     {
         Log::info(auth()->user()->name.'-'."Entra a buscar las tareas");
         try {
-            $tasks = Task::with('parent', 'children')->get()->map(function ($task) {
+            $tasks = Task::with('parent', 'children')
+                ->get()
+                ->filter(function ($task) {
+                    // Solo mostrar tareas que no tienen padre (tareas principales)
+                    return $task->parent_id === null;
+                })
+                ->map(function ($task) {
+                    return [
+                        'id' => $task->id,
+                        'title' => $task->title,
+                        'description' => $task->description,
+                        'startDate' => $task->start_date,
+                        'endDate' => $task->end_date,
+                        'priorityId' => $task->priority_id,
+                        'statusId' => $task->status_id,
+                        'categoryId' => $task->category_id,
+                        'recurrence' => $task->recurrence,
+                        'estimatedTime' => $task->estimated_time,
+                        'comments' => $task->comments,
+                        'attachments' => $task->attachments,
+                        'geoLocation' => $task->geo_location,
+                        'parentId' => $task->parent_id,
+                        //'parent' => $task->parent ? $this->mapParent($task->parent) : null, // Agregar el mapeo del padre
+                        'children' => $this->mapChildren($task->children),
+                    ];
+                });
+            /*$tasks =$tasks = Task::with('parent', 'children')
+            ->get()
+            ->filter(function ($task) {
+                // Excluir tareas que son hijas de otra (tienen un parent_id)
+                return $task->parent_id === null;
+            })
+            ->map(function ($task) {
                 return [
                     'id' => $task->id,
                     'title' => $task->title,
@@ -54,7 +86,7 @@ class TaskController extends Controller
                         ];
                     }),
                 ];
-            });
+            });*/
             if ($tasks->isEmpty()) {
                 return response()->json(['tasks' => $tasks], 204);
             }
@@ -67,6 +99,113 @@ class TaskController extends Controller
         }
     }
 
+    public function getTaskDate(Request $request)
+    {
+        Log::info(auth()->user()->name.'-'."Entra a buscar las tareas dada una fecha");
+        try {
+                // Validación de los datos
+                $validator = Validator::make($request->all(), [
+                    'start_date' => 'required|date',
+                ]);
+    
+                if ($validator->fails()) {
+                    return response()->json(['msg' => $validator->errors()->all()], 400);
+                }
+                $tasks = Task::with('parent', 'children')
+                ->whereDate('start_date', $request->start_date)
+                ->get();
+            
+                // Recolectamos todas las IDs de subtareas
+                $subtaskIds = $tasks->pluck('children.*.id')->flatten();
+                
+                // Ahora filtramos para excluir tareas que ya son subtareas
+                $filteredTasks = $tasks->filter(function ($task) use ($subtaskIds) {
+                    // Mostramos solo tareas principales o tareas que no están en subtareas
+                    return $task->parent_id === null || !$subtaskIds->contains($task->id);
+                });
+                
+                // Mapeamos las tareas restantes
+                $mappedTasks = $filteredTasks->map(function ($task) {
+                    return [
+                        'id' => $task->id,
+                        'title' => $task->title,
+                        'description' => $task->description,
+                        'startDate' => $task->start_date,
+                        'endDate' => $task->end_date,
+                        'priorityId' => $task->priority_id,
+                        'statusId' => $task->status_id,
+                        'categoryId' => $task->category_id,
+                        'recurrence' => $task->recurrence,
+                        'estimatedTime' => $task->estimated_time,
+                        'comments' => $task->comments,
+                        'attachments' => $task->attachments,
+                        'geoLocation' => $task->geo_location,
+                        'parentId' => $task->parent_id,
+                        'children' => $this->mapChildren($task->children),
+                    ];
+                });
+                if ($mappedTasks->isEmpty()) {
+                    return response()->json(['tasks' => $mappedTasks], 204);
+                }
+        
+            return response()->json(['tasks' => $mappedTasks], 200);
+        } catch (\Exception $e) {
+            Log::info('TaskController->getTaskDate');
+            Log::info($e);
+            return response()->json(['error' => 'ServerError'], 500);
+        }
+    }
+
+        /**
+     * Función para mapear el padre de una tarea (si existe).
+     */
+    public function mapParent($parent)
+    {
+        return [
+            'id' => $parent->id,
+            'title' => $parent->title,
+            'description' => $parent->description,
+            'start_date' => $parent->start_date,
+            'end_date' => $parent->end_date,
+            'priority_id' => $parent->priority_id,
+            'status_id' => $parent->status_id,
+            'category_id' => $parent->category_id,
+            'recurrence' => $parent->recurrence,
+            'estimated_time' => $parent->estimated_time,
+            'comments' => $parent->comments,
+            'attachments' => $parent->attachments,
+            'geo_location' => $parent->geo_location,
+            'parent_id' => $parent->parent_id,
+            //'parent' => $parent->parent ? $this->mapParent($parent->parent) : null, // Recursión para mapear ancestros
+        ];
+    }
+
+    /**
+     * Función recursiva para mapear subtareas.
+     */
+    public function mapChildren($children)
+    {
+        return $children->map(function ($child) {
+            return [
+                'id' => $child->id,
+                'title' => $child->title,
+                'description' => $child->description,
+                'startDate' => $child->start_date,
+                'endDate' => $child->end_date,
+                'priorityId' => $child->priority_id,
+                'statusId' => $child->status_id,
+                'categoryId' => $child->category_id,
+                'recurrence' => $child->recurrence,
+                'estimatedTime' => $child->estimated_time,
+                'comments' => $child->comments,
+                'attachments' => $child->attachments,
+                'geoLocation' => $child->geo_location,
+                'parentId' => $child->parent_id,
+                //'parent' => $child->parent ? $this->mapParent($child->parent) : null, // Agregar el mapeo del padre
+                'children' => $this->mapChildren($child->children), // Recursión para hijos
+            ];
+        });
+    }
     /**
      * Store a newly created resource in storage.
      */
@@ -160,22 +299,6 @@ class TaskController extends Controller
             'attachments' => $task->attachments,
             'geo_location' => $task->geo_location,
             'parent_id' => $task->parent_id,
-            'parent' => $task->parent ? [
-                'id' => $task->parent->id,
-                'title' => $task->parent->title,
-                'description' => $task->parent->description,
-                'start_date' => $task->parent->start_date,
-                'end_date' => $task->parent->end_date,
-                'priority_id' => $task->parent->priority_id,
-                'status_id' => $task->parent->status_id,
-                'category_id' => $task->parent->category_id,
-                'recurrence' => $task->parent->recurrence,
-                'estimated_time' => $task->parent->estimated_time,
-                'comments' => $task->parent->comments,
-                'attachments' => $task->parent->attachments,
-                'geo_location' => $task->parent->geo_location,
-                'parent_id' => $task->parent->parent_id,
-            ] : null,
             'children' => $task->children->map(function ($child) {
                 return [
                     'id' => $child->id,

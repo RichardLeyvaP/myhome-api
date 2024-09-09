@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Symfony\Component\VarExporter\Internal\Values;
 
 class CategoryController extends Controller
 {
@@ -20,7 +21,7 @@ class CategoryController extends Controller
         Log::info(auth()->user()->name.'-'."Entra a buscar las categorias");
         try {
             //$categories = Category::all();
-            $categories = Category::with('parent', 'children')->get()->map(function ($category) {
+            /*$categories = Category::with('parent', 'children')->get()->map(function ($category) {
                 $translatedAttributes = $category->getTranslatedCategories();
                 return [
                     'id' => $category->id,
@@ -48,7 +49,26 @@ class CategoryController extends Controller
                         ];
                     }),
                 ];
-            });
+            });*/
+            $categories = Category::with('parent', 'children')
+            ->get()
+            ->filter(function ($category) {
+                // Solo mostrar categorías que no tienen padre (categorías principales)
+                return $category->parent_id === null;
+            })
+            ->map(function ($category) {
+                $translatedAttributes = $category->getTranslatedCategories();
+                return [
+                    'id' => $category->id,
+                    'name' => $translatedAttributes['name'],
+                    'description' => $translatedAttributes['description'],
+                    'color' => $category->color,
+                    'icon' => $category->icon,
+                    'parent_id' => $category->parent_id,
+                    //'parent' => $category->parent ? $this->mapParent($category->parent) : null,
+                    'children' => $this->mapChildren($category->children),
+                ];
+            })->Values();
             
             return response()->json(['categories' => $categories], 200);
         } catch (\Exception $e) {
@@ -56,6 +76,41 @@ class CategoryController extends Controller
             Log::info($e);
             return response()->json(['error' => 'ServerError'], 500);
         }
+    }
+
+        /**
+     * Función para mapear el padre de una categoría (si existe).
+     */
+    public function mapParent($parent)
+    {
+        return [
+            'id' => $parent->id,
+            'name' => $parent->name,
+            'description' => $parent->description,
+            'color' => $parent->color,
+            'icon' => $parent->icon,
+            'parent_id' => $parent->parent_id,
+            'parent' => $parent->parent ? $this->mapParent($parent->parent) : null, // Mapeo recursivo para ancestros
+        ];
+    }
+
+    /**
+     * Función recursiva para mapear categorías hijas.
+     */
+    public function mapChildren($children)
+    {
+        return $children->map(function ($child) {
+            $translatedAttributes = $child->getTranslatedCategories();
+            return [
+                'id' => $child->id,
+                'name' => $translatedAttributes['name'],
+                'description' => $translatedAttributes['description'],
+                'color' => $child->color,
+                'icon' => $child->icon,
+                'parent_id' => $child->parent_id,
+                'children' => $this->mapChildren($child->children), // Recursión para los hijos de los hijos
+            ];
+        });
     }
 
     /**
