@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
 
-Route::post('login', [AuthController::class, 'login'])->name('login');
+Route::post('login', [AuthController::class, 'login']);
 Route::post('login-apk', [AuthController::class, 'loginApk'])->name('loginApk');
 Route::post('register', [UserController::class, 'register'])->name('register');
 
@@ -52,46 +52,49 @@ Route::group( ['middleware' => ["auth:sanctum"]], function(){
 
     return response()->json(['message' => __('Idioma seleccionado correctamente.')]);
     });*/
-    Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('logout', [AuthController::class, 'logout']);
     
     //Usuario
-    Route::get('user', [UserController::class, 'index'])->name('user');
-    Route::get('get-user-language-changes', [UserController::class, 'getUserLanguageChanges'])->name('getUserLanguageChanges');
+    Route::get('user', [UserController::class, 'index']);
+    Route::get('get-user-language-changes', [UserController::class, 'getUserLanguageChanges']);
 
     //Roles
-    Route::get('role', [RoleController::class, 'index'])->name('index');
-    Route::post('role', [RoleController::class, 'store'])->name('store');
-    Route::get('role-show', [RoleController::class, 'show'])->name('show');
-    Route::put('role', [RoleController::class, 'update'])->name('update');
-    Route::post('role-destroy', [RoleController::class, 'destroy'])->name('destroy');
+    Route::get('role', [RoleController::class, 'index']);
+    Route::post('role', [RoleController::class, 'store']);
+    Route::get('role-show', [RoleController::class, 'show']);
+    Route::put('role', [RoleController::class, 'update']);
+    Route::post('role-destroy', [RoleController::class, 'destroy']);
 
     //Categories
-    Route::get('category', [CategoryController::class, 'index'])->name('index');
-    Route::post('category', [CategoryController::class, 'store'])->name('store');
-    Route::get('category-show', [CategoryController::class, 'show'])->name('show');
-    Route::post('category-updated', [CategoryController::class, 'update'])->name('update');
-    Route::post('category-destroy', [CategoryController::class, 'destroy'])->name('destroy');
+    Route::get('category', [CategoryController::class, 'index']);
+    Route::post('category', [CategoryController::class, 'store']);
+    Route::get('category-show', [CategoryController::class, 'show']);
+    Route::post('category-updated', [CategoryController::class, 'update']);
+    Route::post('category-destroy', [CategoryController::class, 'destroy']);
 
     //Categories
-    Route::get('status', [StatusController::class, 'index'])->name('index');
-    Route::post('status', [StatusController::class, 'store'])->name('store');
-    Route::get('status-show', [StatusController::class, 'show'])->name('show');
-    Route::put('status', [StatusController::class, 'update'])->name('update');
-    Route::post('status-destroy', [StatusController::class, 'destroy'])->name('destroy');
+    Route::get('status', [StatusController::class, 'index']);
+    Route::post('status', [StatusController::class, 'store']);
+    Route::get('status-show', [StatusController::class, 'show']);
+    Route::put('status', [StatusController::class, 'update']);
+    Route::post('status-destroy', [StatusController::class, 'destroy']);
 
     //Priorities
-    Route::get('priority', [PriorityController::class, 'index'])->name('index');
-    Route::post('priority', [PriorityController::class, 'store'])->name('store');
-    Route::get('priority-show', [PriorityController::class, 'show'])->name('show');
-    Route::put('priority', [PriorityController::class, 'update'])->name('update');
-    Route::post('priority-destroy', [PriorityController::class, 'destroy'])->name('destroy');
+    Route::get('priority', [PriorityController::class, 'index']);
+    Route::post('priority', [PriorityController::class, 'store']);
+    Route::get('priority-show', [PriorityController::class, 'show']);
+    Route::put('priority', [PriorityController::class, 'update']);
+    Route::post('priority-destroy', [PriorityController::class, 'destroy']);
 
     //tasks
-    Route::get('task', [TaskController::class, 'index'])->name('index');
-    Route::post('task', [TaskController::class, 'store'])->name('store');
-    Route::get('task-show', [TaskController::class, 'show'])->name('show');
-    Route::post('task-updated', [TaskController::class, 'update'])->name('update');
-    Route::post('task-destroy', [TaskController::class, 'destroy'])->name('destroy');
-    Route::get('task-history', [TaskController::class, 'getTaskHistory'])->name('getTaskHistory');
-    Route::get('task-date-apk', [TaskController::class, 'getTaskDate'])->name('getTaskDate');
+    Route::get('task', [TaskController::class, 'index']);
+    Route::post('task', [TaskController::class, 'store']);
+    Route::get('task-show', [TaskController::class, 'show']);
+    Route::post('task-updated', [TaskController::class, 'update']);
+    Route::post('task-destroy', [TaskController::class, 'destroy']);
+    Route::get('task-history', [TaskController::class, 'getTaskHistory']);
+    Route::get('task-date-apk', [TaskController::class, 'getTaskDate']);
+
+    //rutas unificadas
+    Route::get('category-status-priority-apk', [TaskController::class, 'category_status_priority']);
 });

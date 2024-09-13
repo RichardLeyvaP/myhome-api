@@ -18,11 +18,11 @@ class StatusController extends Controller
         Log::info(auth()->user()->name.'-'."Entra a buscar las estados");
         try {
             $status = Status::all();
-            $translatedPriorities = [];
+            $translatedStatuses = [];
 
     foreach ($status as $state) {
         $getTranslatedStatus = $state->getTranslatedStatus();
-        $translatedPriorities[] = [
+        $translatedStatuses[] = [
             'id' => $state->id,
             'name' => $getTranslatedStatus['name'],
             'description' => $getTranslatedStatus['description'],
@@ -31,7 +31,7 @@ class StatusController extends Controller
             'updated_at' => $state->updated_at,
         ];
     }
-            return response()->json(['status' => $translatedPriorities], 200);
+            return response()->json(['status' => $translatedStatuses], 200);
         } catch (\Exception $e) {
             Log::info('StatusController->index');
             Log::info($e);

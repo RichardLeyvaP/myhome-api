@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\Priority;
+use App\Models\Status;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -455,6 +458,71 @@ class TaskController extends Controller
             return response()->json(['activities' => $activities], 200);
         } catch (\Exception $e) {
             Log::info('TaskController->getTaskHistory');
+            Log::info($e);
+            return response()->json(['error' => 'ServerError'], 500);
+        }
+    }
+
+    public function category_status_priority()
+    {
+        Log::info(auth()->user()->name.'-'."Entra a ruta unificada(category_status_priority) buscar las categorias a estados y prioridades");
+        try {
+            $categories = Category::with('parent', 'children')
+            ->get()
+            ->filter(function ($category) {
+                // Solo mostrar categorías que no tienen padre (categorías principales)
+                return $category->parent_id === null;
+            })
+            ->map(function ($category) {
+                $translatedAttributes = $category->getTranslatedCategories();
+                return [
+                    'id' => $category->id,
+                    'name' => $translatedAttributes['name'],
+                    'description' => $translatedAttributes['description'],
+                    'color' => $category->color,
+                    'icon' => $category->icon,
+                    'parent_id' => $category->parent_id,
+                    //'parent' => $category->parent ? $this->mapParent($category->parent) : null,
+                    'children' => $this->mapChildren($category->children),
+                ];
+            })->Values();
+
+            //Estados
+            $status = Status::all();
+            $translatedStatuses = [];
+
+            foreach ($status as $state) {
+                $getTranslatedStatus = $state->getTranslatedStatus();
+                $translatedStatuses[] = [
+                    'id' => $state->id,
+                    'name' => $getTranslatedStatus['name'],
+                    'description' => $getTranslatedStatus['description'],
+                    'color' => $state->color,
+                    'created_at' => $state->created_at,
+                    'updated_at' => $state->updated_at,
+                ];
+            }
+
+            //prioridades
+            $priorities = Priority::all();
+            $translatedPriorities = [];
+
+            foreach ($priorities as $priority) {
+                $translatedAttributes = $priority->getTranslatedAttributes();
+                $translatedPriorities[] = [
+                    'id' => $priority->id,
+                    'name' => $translatedAttributes['name'],
+                    'description' => $translatedAttributes['description'],
+                    'color' => $priority->color,
+                    'level' => $priority->level,
+                    'created_at' => $priority->created_at,
+                    'updated_at' => $priority->updated_at,
+                ];
+            }
+            
+            return response()->json(['categories' => $categories, 'status' => $translatedStatuses, 'priorities' => $translatedPriorities], 200);
+        } catch (\Exception $e) {
+            Log::info('CategoryController->index');
             Log::info($e);
             return response()->json(['error' => 'ServerError'], 500);
         }
