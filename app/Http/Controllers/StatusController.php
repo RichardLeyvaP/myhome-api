@@ -34,7 +34,7 @@ class StatusController extends Controller
             return response()->json(['status' => $translatedStatuses], 200);
         } catch (\Exception $e) {
             Log::info('StatusController->index');
-            Log::info($e);
+            Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -64,7 +64,7 @@ class StatusController extends Controller
             return response()->json(['msg' => 'StatusStoreOk', 'Status' => $Status], 201);
         } catch (\Exception $e) {
             Log::info('StatusController->store');
-            Log::info($e);
+            Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -89,7 +89,7 @@ class StatusController extends Controller
             return response()->json(['Status' => $Status], 200);
         } catch (\Exception $e) {
             Log::info('StatusController->show');
-            Log::info($e);
+            Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -124,7 +124,7 @@ class StatusController extends Controller
             return response()->json(['msg' => 'StatusUpdateOk', 'Status' => $Status], 200);
         } catch (\Exception $e) {
             Log::info('StatusController->update');
-            Log::info($e);
+            Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -151,7 +151,7 @@ class StatusController extends Controller
             return response()->json(['msg' => 'StatusDeleteOk'], 200);
         } catch (\Exception $e) {
             Log::info('StatusController->destroy');
-            Log::info($e);
+            Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }

@@ -38,7 +38,7 @@ class UserController extends Controller
             Log::info("Entra a buscar los usuarios");
             return response()->json(['users' => User::all()], 200);
         } catch (\Throwable $th) {
-            Log::error($th);
+            Log::info($th->getMessage());
             return response()->json(['msg' => "Error interno del sistema"], 500);
         }
     }
@@ -69,7 +69,7 @@ class UserController extends Controller
                 'user' => $user
             ], 201);
         } catch (\Throwable $th) {
-            Log::error($th);
+            Log::info($th->getMessage());
             return response()->json(['msg' => $th->getMessage() . 'Error interno del sistema'], 500);
         }
     }
@@ -140,7 +140,7 @@ class UserController extends Controller
         return response()->json(['activities' => $activities], 200);
     } catch (\Exception $e) {
         Log::info('UserController->show');
-        Log::info($e);
+        Log::info($e->getMessage());
         return response()->json(['error' => 'ServerError'], 500);
     }
     }

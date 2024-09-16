@@ -97,7 +97,7 @@ class TaskController extends Controller
             return response()->json(['tasks' => $tasks], 200);
         } catch (\Exception $e) {
             Log::info('TaskController->index');
-            Log::info($e);
+            Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -146,7 +146,7 @@ class TaskController extends Controller
                         'parentId' => $task->parent_id,
                         'children' => $this->mapChildren($task->children),
                     ];
-                });
+                })->values();
                 if ($mappedTasks->isEmpty()) {
                     return response()->json(['tasks' => $mappedTasks], 204);
                 }
@@ -154,7 +154,7 @@ class TaskController extends Controller
             return response()->json(['tasks' => $mappedTasks], 200);
         } catch (\Exception $e) {
             Log::info('TaskController->getTaskDate');
-            Log::info($e);
+            Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -263,7 +263,7 @@ class TaskController extends Controller
             return response()->json(['msg' => 'TaskStoreOk', 'task' => $task], 201);
         } catch (\Exception $e) {
             Log::info('TaskController->store');
-            Log::info($e);
+            Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -324,7 +324,7 @@ class TaskController extends Controller
             return response()->json(['task' => $taskData], 200);
         } catch (\Exception $e) {
             Log::info('TaskController->show');
-            Log::info($e);
+            Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -392,7 +392,7 @@ class TaskController extends Controller
             return response()->json(['msg' => 'TaskUpdateOk', 'task' => $task], 200);
         } catch (\Exception $e) {
             Log::info('TaskController->update');
-            Log::info($e);
+            Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -428,7 +428,7 @@ class TaskController extends Controller
             return response()->json(['msg' => 'TaskDeleteOk'], 200);
         } catch (\Exception $e) {
             Log::info('TaskController->destroy');
-            Log::info($e);
+            Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -458,7 +458,7 @@ class TaskController extends Controller
             return response()->json(['activities' => $activities], 200);
         } catch (\Exception $e) {
             Log::info('TaskController->getTaskHistory');
-            Log::info($e);
+            Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -523,7 +523,7 @@ class TaskController extends Controller
             return response()->json(['categories' => $categories, 'status' => $translatedStatuses, 'priorities' => $translatedPriorities], 200);
         } catch (\Exception $e) {
             Log::info('CategoryController->index');
-            Log::info($e);
+            Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }

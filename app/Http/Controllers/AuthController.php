@@ -55,7 +55,7 @@ class AuthController extends Controller
             }
         } catch (\Throwable $th) {
             Log::info('AuthController->login');
-            Log::error($th);
+            Log::info($th->getMessage());
             return response()->json(['msg' => 'ServerError'], 500);
         }
     }
@@ -95,7 +95,7 @@ class AuthController extends Controller
             }
         } catch (\Throwable $th) {
             Log::info('AuthController->login');
-            Log::error($th);
+            Log::info($th->getMessage());
             return response()->json(['msg' => 'ServerError'], 500);
         }
     }
@@ -108,7 +108,7 @@ class AuthController extends Controller
             return response()->json(["msg" => "CloseSessionOk"], 200);
         } catch (\Throwable $th) {
             Log::info('AuthController->logout');
-            Log::error($th);
+            Log::info($th->getMessage());
             return response()->json(['msg' => 'ServerError'], 500);
         }
     }

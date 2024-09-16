@@ -20,7 +20,7 @@ class RoleController extends Controller
             return response()->json(['roles' => $roles], 200);
         } catch (\Exception $e) {
             Log::info('RoleController->index');
-            Log::info($e);
+            Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -48,7 +48,7 @@ class RoleController extends Controller
             return response()->json(['msg' => 'RoleStoreOk', 'role' => $role], 201);
         } catch (\Exception $e) {
             Log::info('RoleController->store');
-            Log::info($e);
+            Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -73,7 +73,7 @@ class RoleController extends Controller
             return response()->json(['rol' => $role], 200);
         } catch (\Exception $e) {
             Log::info('RoleController->show');
-            Log::info($e);
+            Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -106,7 +106,7 @@ class RoleController extends Controller
             return response()->json(['msg' => __('RoleUpdateOk'), 'role' => $role], 200);
         } catch (\Exception $e) {
             Log::info('RoleController->update');
-            Log::info($e);
+            Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -133,7 +133,7 @@ class RoleController extends Controller
             return response()->json(['msg' => 'RoleDeleteOk'], 200);
         } catch (\Exception $e) {
             Log::info('RoleController->destroy');
-            Log::info($e);
+            Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
