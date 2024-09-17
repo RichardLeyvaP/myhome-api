@@ -19,7 +19,21 @@ class ProductController extends Controller
     {
         Log::info(auth()->user()->name . '-' . "Entra a buscar los productos");
         try {
-            $products = Product::all();
+            $products = Product::get()->map(function ($query){
+                return [
+                    'name' => $query->name,
+                    'categoryId' => $query->category_id,
+                    'statusId' => $query->status_id,
+                    'quantity' => $query->quantity,
+                    'unitPrice' => $query->unit_price,
+                    'purchaseDate' => $query->purchase_date,
+                    'expirationDate' => $query->expiration_date,
+                    'purchasePlace' => $query->purchase_place,
+                    'brand' => $query->brand,
+                    'additionalNotes' => $query->additional_notes,
+                    'image' => $query->image,
+                ];
+            });
             return response()->json(['products' => $products], 200);
         } catch (\Exception $e) {
             Log::error('ProductController->index: ' . $e->getMessage());
@@ -67,7 +81,7 @@ class ProductController extends Controller
                 'brand' => $request->brand,
                 'additional_notes' => $request->additional_notes,
             ]);
-
+            $filename = 'products/default.jpg';
             // Manejo de archivos adjuntos
             if ($request->hasFile('image')) {
                 $filename = $request->file('image')->storeAs('products', $product->id . '.' . $request->file('image')->extension(), 'public');
@@ -97,7 +111,21 @@ class ProductController extends Controller
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
-            $product = Product::find($request->id);
+            $product = Product::where('id', $request->id)->get()->map(function ($query){
+                return [
+                    'name' => $query->name,
+                    'categoryId' => $query->category_id,
+                    'statusId' => $query->status_id,
+                    'quantity' => $query->quantity,
+                    'unitPrice' => $query->unit_price,
+                    'purchaseDate' => $query->purchase_date,
+                    'expirationDate' => $query->expiration_date,
+                    'purchasePlace' => $query->purchase_place,
+                    'brand' => $query->brand,
+                    'additionalNotes' => $query->additional_notes,
+                    'image' => $query->image,
+                ];
+            });
             if (!$product) {
                 return response()->json(['msg' => 'ProductNotFound'], 404);
             }
@@ -145,12 +173,14 @@ class ProductController extends Controller
             $filename = $product->image;
             if ($request->hasFile('image')) {
                 // Verificar si el archivo existe y eliminarlo
-                if ($product->image && Storage::disk('public')->exists($product->image)) {
-                    Storage::disk('public')->delete($product->image);
-                }
-
+                if ($product->image_product != "products/default.jpg")
+                {
+                    if ($product->image && Storage::disk('public')->exists($product->image)) {
+                        Storage::disk('public')->delete($product->image);
+                    }
                 // Guardar el nuevo archivo
                 $filename = $request->file('image')->storeAs('products', $product->id . '.' . $request->file('image')->extension(), 'public');
+                }
             }
 
             // Actualizar el producto con los datos proporcionados
@@ -199,11 +229,13 @@ class ProductController extends Controller
                 return response()->json(['msg' => 'ProductNotFound'], 404);
             }
     
-            // Eliminar la imagen asociada si existe
-            if ($product->image && Storage::disk('public')->exists($product->image)) {
-                Storage::disk('public')->delete($product->image);
-            }
-    
+            if ($product->image_product != "products/default.jpg")
+                {                   
+                    // Eliminar la imagen asociada si existe
+                    if ($product->image && Storage::disk('public')->exists($product->image)) {
+                        Storage::disk('public')->delete($product->image);
+                    }
+                }    
             // Eliminar el producto
             $product->delete();
     
