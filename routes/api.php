@@ -3,6 +3,9 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PriorityController;
+use App\Http\Controllers\ProductCategoryController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductStatusController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StatusController;
 use App\Http\Controllers\TaskController;
@@ -95,6 +98,28 @@ Route::group( ['middleware' => ["auth:sanctum"]], function(){
     Route::get('task-history', [TaskController::class, 'getTaskHistory']);
     Route::get('task-date-apk', [TaskController::class, 'getTaskDate']);
 
+    // Rutas para ProductCategory
+    Route::get('product-categories', [ProductCategoryController::class, 'index']);
+    Route::post('product-categories', [ProductCategoryController::class, 'store']);
+    Route::get('product-categories-show', [ProductCategoryController::class, 'show']);
+    Route::put('product-categories', [ProductCategoryController::class, 'update']);
+    Route::post('product-categories-destroy', [ProductCategoryController::class, 'destroy']);
+
+    // Rutas para ProductStatus
+    Route::get('product-statuses', [ProductStatusController::class, 'index']);
+    Route::post('product-statuses', [ProductStatusController::class, 'store']);
+    Route::get('product-statuses-show', [ProductStatusController::class, 'show']);
+    Route::put('product-statuses', [ProductStatusController::class, 'update']);
+    Route::post('product-statuses-destroy', [ProductStatusController::class, 'destroy']);
+
+    // Rutas para Product
+    Route::get('products', [ProductController::class, 'index']);
+    Route::post('products', [ProductController::class, 'store']);
+    Route::get('products->show', [ProductController::class, 'show']);
+    Route::post('products-update', [ProductController::class, 'update']);
+    Route::post('products-destroy', [ProductController::class, 'destroy']);
+
     //rutas unificadas
+    Route::get('productcategory-productstatus-apk', [ProductController::class, 'productcategory_productstatus']);
     Route::get('category-status-priority-apk', [TaskController::class, 'category_status_priority']);
 });
