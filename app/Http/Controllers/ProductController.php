@@ -26,6 +26,7 @@ class ProductController extends Controller
                     'statusId' => $query->status_id,
                     'quantity' => $query->quantity,
                     'unitPrice' => $query->unit_price,
+                    'totalPrice' => $query->total_price,
                     'purchaseDate' => $query->purchase_date,
                     'expirationDate' => $query->expiration_date,
                     'purchasePlace' => $query->purchase_place,
@@ -66,7 +67,8 @@ class ProductController extends Controller
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
-
+                        
+            $filename = 'products/default.jpg';
             // Crear el registro en la base de datos con los datos proporcionados
             $product = Product::create([
                 'name' => $request->name,
@@ -80,8 +82,8 @@ class ProductController extends Controller
                 'expiration_date' => $request->expiration_date,
                 'brand' => $request->brand,
                 'additional_notes' => $request->additional_notes,
+                'image' => $filename
             ]);
-            $filename = 'products/default.jpg';
             // Manejo de archivos adjuntos
             if ($request->hasFile('image')) {
                 $filename = $request->file('image')->storeAs('products', $product->id . '.' . $request->file('image')->extension(), 'public');
@@ -118,6 +120,7 @@ class ProductController extends Controller
                     'statusId' => $query->status_id,
                     'quantity' => $query->quantity,
                     'unitPrice' => $query->unit_price,
+                    'totalPrice' => $query->total_price,
                     'purchaseDate' => $query->purchase_date,
                     'expirationDate' => $query->expiration_date,
                     'purchasePlace' => $query->purchase_place,

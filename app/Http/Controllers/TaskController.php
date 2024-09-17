@@ -236,7 +236,8 @@ class TaskController extends Controller
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
-
+            
+            $filename = 'tasks/default.jpg';
            // Crear el registro en la base de datos con los datos proporcionados
             $task = Task::create([
                 'title' => $request->title,
@@ -251,6 +252,7 @@ class TaskController extends Controller
                 'estimated_time' => $request->estimated_time,
                 'comments' => $request->comments,
                 'geo_location' => $request->geo_location,
+                'attachments' => $filename
             ]);
 
             if ($request->hasFile('attachments')) {
@@ -362,16 +364,14 @@ class TaskController extends Controller
             }
             $filename = $task->attachments;
             if ($request->hasFile('attachments')){
-                // Verificar si el archivo existe y eliminarlo
-            if ($task->attachments && Storage::disk('public')->exists($task->attachments)) {
-                Storage::disk('public')->delete($task->attachments);
-            }
-            //if ($category->icon != 'categories/default_profile.jpg') {
-                /*$destination = public_path("storage\\" . $task->attachments);
-                if (File::exists($destination)) {
-                    File::delete($destination);
-                }*/
+                if ($task->attachments != "tasks/default.jpg")
+                {
+                    if ($task->attachments && Storage::disk('public')->exists($task->attachments)) {
+                        Storage::disk('public')->delete($task->attachments);
+                    }
+                // Guardar el nuevo archivo
                 $filename = $request->file('attachments')->storeAs('tasks', $task->id . '.' . $request->file('attachments')->extension(), 'public');
+                }
             }
             $task->update([
                 'title' => $request->title,
@@ -415,13 +415,13 @@ class TaskController extends Controller
                 return response()->json(['msg' => 'TaskNotFound'], 404);
             }
 
-            if ($task->attachments && Storage::disk('public')->exists($task->attachments)) {
-                Storage::disk('public')->delete($task->attachments);
-            }
-                /*$destination = public_path("storage\\" . $task->attachments);
-                if (File::exists($destination)) {
-                    File::delete($destination);
-                }*/
+            if ($task->attachments != "tasks/default.jpg")
+            {                   
+                // Eliminar la imagen asociada si existe
+                if ($task->attachments && Storage::disk('public')->exists($task->attachments)) {
+                    Storage::disk('public')->delete($task->attachments);
+                }
+            }    
 
             $task->delete();
     
