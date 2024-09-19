@@ -26,9 +26,7 @@ class StatusController extends Controller
             'id' => $state->id,
             'name' => $getTranslatedStatus['name'],
             'description' => $getTranslatedStatus['description'],
-            'color' => $state->color,
-            'created_at' => $state->created_at,
-            'updated_at' => $state->updated_at,
+            'color' => $state->color
         ];
     }
             return response()->json(['status' => $translatedStatuses], 200);

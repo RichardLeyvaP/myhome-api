@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\HomeTypeController;
+use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PriorityController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
@@ -118,6 +121,28 @@ Route::group( ['middleware' => ["auth:sanctum"]], function(){
     Route::get('products-show', [ProductController::class, 'show']);
     Route::post('products-update', [ProductController::class, 'update']);
     Route::post('products-destroy', [ProductController::class, 'destroy']);
+
+    // Rutas para people
+    Route::get('person', [PersonController::class, 'index']);
+    Route::post('person', [PersonController::class, 'store']);
+    Route::get('person-show', [PersonController::class, 'show']);
+    Route::post('person-update', [PersonController::class, 'update']);
+    Route::post('person-destroy', [ProductController::class, 'destroy']);
+    
+    // Rutas para ProductStatus
+    Route::get('home-type', [HomeTypeController::class, 'index']);
+    Route::post('home-type', [HomeTypeController::class, 'store']);
+    Route::get('home-type-show', [HomeTypeController::class, 'show']);
+    Route::put('home-type', [HomeTypeController::class, 'update']);
+    Route::post('home-type-destroy', [HomeTypeController::class, 'destroy']);
+
+    // Rutas para Homes
+    Route::get('home', [HomeController::class, 'index']);
+    Route::post('home', [HomeController::class, 'store']);
+    Route::get('home-show', [HomeController::class, 'show']);
+    Route::post('home-update', [HomeController::class, 'update']);
+    Route::post('home-destroy', [HomeController::class, 'destroy']);
+
 
     //rutas unificadas
     Route::get('productcategory-productstatus-apk', [ProductController::class, 'productcategory_productstatus']);

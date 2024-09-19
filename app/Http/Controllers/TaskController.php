@@ -22,13 +22,16 @@ class TaskController extends Controller
     {
         Log::info(auth()->user()->name.'-'."Entra a buscar las tareas");
         try {
-            $tasks = Task::with('parent', 'children')
+            $tasks = Task::with('parent', 'children', 'priority', 'status', 'category')
                 ->get()
                 ->filter(function ($task) {
                     // Solo mostrar tareas que no tienen padre (tareas principales)
                     return $task->parent_id === null;
                 })
                 ->map(function ($task) {
+                    $translatedAttributes = $task->priority->getTranslatedAttributes();
+                    $translatedCategoy = $task->category->getTranslatedCategories();
+                    $getTranslatedStatus = $task->status->getTranslatedStatus();
                     return [
                         'id' => $task->id,
                         'title' => $task->title,
@@ -36,8 +39,11 @@ class TaskController extends Controller
                         'startDate' => $task->start_date,
                         'endDate' => $task->end_date,
                         'priorityId' => $task->priority_id,
+                        'namePriority' => $translatedAttributes['name'],
                         'statusId' => $task->status_id,
+                        'nameStatus' => $getTranslatedStatus['name'],
                         'categoryId' => $task->category_id,
+                        'nameCategory' => $translatedCategoy['name'],
                         'recurrence' => $task->recurrence,
                         'estimatedTime' => $task->estimated_time,
                         'comments' => $task->comments,
@@ -114,7 +120,7 @@ class TaskController extends Controller
                 if ($validator->fails()) {
                     return response()->json(['msg' => $validator->errors()->all()], 400);
                 }
-                $tasks = Task::with('parent', 'children')
+                $tasks = Task::with('parent', 'children', 'priority', 'status', 'category')
                 ->whereDate('start_date', $request->start_date)
                 ->get();
             
@@ -129,6 +135,9 @@ class TaskController extends Controller
                 
                 // Mapeamos las tareas restantes
                 $mappedTasks = $filteredTasks->map(function ($task) {
+                    $translatedAttributes = $task->priority->getTranslatedAttributes();
+                    $translatedCategoy = $task->category->getTranslatedCategories();
+                    $getTranslatedStatus = $task->status->getTranslatedStatus();
                     return [
                         'id' => $task->id,
                         'title' => $task->title,
@@ -136,8 +145,11 @@ class TaskController extends Controller
                         'startDate' => $task->start_date,
                         'endDate' => $task->end_date,
                         'priorityId' => $task->priority_id,
+                        'namePriority' => $translatedAttributes['name'],
                         'statusId' => $task->status_id,
+                        'nameStatus' => $getTranslatedStatus['name'],
                         'categoryId' => $task->category_id,
+                        'nameCategory' => $translatedCategoy['name'],
                         'recurrence' => $task->recurrence,
                         'estimatedTime' => $task->estimated_time,
                         'comments' => $task->comments,
@@ -164,6 +176,9 @@ class TaskController extends Controller
      */
     public function mapParent($parent)
     {
+        $translatedAttributes = $parent->priority->getTranslatedAttributes();
+        $translatedCategoy = $parent->category->getTranslatedCategories();
+        $getTranslatedStatus = $parent->status->getTranslatedStatus();
         return [
             'id' => $parent->id,
             'title' => $parent->title,
@@ -171,8 +186,11 @@ class TaskController extends Controller
             'start_date' => $parent->start_date,
             'end_date' => $parent->end_date,
             'priority_id' => $parent->priority_id,
+            'namePriority' => $translatedAttributes['name'],
             'status_id' => $parent->status_id,
+            'nameStatus' => $getTranslatedStatus['name'],
             'category_id' => $parent->category_id,
+            'nameCategory' => $translatedCategoy['name'],
             'recurrence' => $parent->recurrence,
             'estimated_time' => $parent->estimated_time,
             'comments' => $parent->comments,
@@ -189,15 +207,21 @@ class TaskController extends Controller
     public function mapChildren($children)
     {
         return $children->map(function ($child) {
+            $translatedAttributes = $child->priority->getTranslatedAttributes();
+            $translatedCategoy = $child->category->getTranslatedCategories();
+            $getTranslatedStatus = $child->status->getTranslatedStatus();
             return [
                 'id' => $child->id,
                 'title' => $child->title,
                 'description' => $child->description,
                 'startDate' => $child->start_date,
                 'endDate' => $child->end_date,
-                'priorityId' => $child->priority_id,
-                'statusId' => $child->status_id,
-                'categoryId' => $child->category_id,
+                'priority_id' => $child->priority_id,
+                'namePriority' => $translatedAttributes['name'],
+                'status_id' => $child->status_id,
+                'nameStatus' => $getTranslatedStatus['name'],
+                'category_id' => $child->category_id,
+                'nameCategory' => $translatedCategoy['name'],
                 'recurrence' => $child->recurrence,
                 'estimatedTime' => $child->estimated_time,
                 'comments' => $child->comments,
@@ -283,11 +307,14 @@ class TaskController extends Controller
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
-            $task = Task::with('parent', 'children')->findOrFail($request->id);
+            $task = Task::where('id', $request->id)->with('parent', 'children', 'priority', 'status', 'category')->first();
             if (!$task) {
                 return response()->json(['msg' => 'TaskNotfound'], 404);
             }
 
+            $translatedAttributes = $task->priority->getTranslatedAttributes();
+            $translatedCategoy = $task->category->getTranslatedCategories();
+            $getTranslatedStatus = $task->status->getTranslatedStatus();
             // Mapear los datos de la tarea y sus relaciones
         $taskData = [
             'id' => $task->id,
@@ -295,33 +322,19 @@ class TaskController extends Controller
             'description' => $task->description,
             'start_date' => $task->start_date,
             'end_date' => $task->end_date,
-            'priority_id' => $task->priority_id,
-            'status_id' => $task->status_id,
-            'category_id' => $task->category_id,
+            'priorityId' => $task->priority_id,
+            'namePriority' => $translatedAttributes['name'],
+            'statusId' => $task->status_id,
+            'nameStatus' => $getTranslatedStatus['name'],
+            'categoryId' => $task->category_id,
+            'nameCategory' => $translatedCategoy['name'],
             'recurrence' => $task->recurrence,
             'estimated_time' => $task->estimated_time,
             'comments' => $task->comments,
             'attachments' => $task->attachments,
             'geo_location' => $task->geo_location,
             'parent_id' => $task->parent_id,
-            'children' => $task->children->map(function ($child) {
-                return [
-                    'id' => $child->id,
-                    'title' => $child->title,
-                    'description' => $child->description,
-                    'start_date' => $child->start_date,
-                    'end_date' => $child->end_date,
-                    'priority_id' => $child->priority_id,
-                    'status_id' => $child->status_id,
-                    'category_id' => $child->category_id,
-                    'recurrence' => $child->recurrence,
-                    'estimated_time' => $child->estimated_time,
-                    'comments' => $child->comments,
-                    'attachments' => $child->attachments,
-                    'geo_location' => $child->geo_location,
-                    'parent_id' => $child->parent_id,
-                ];
-            }),
+            'children' => $this->mapChildren($task->children),
         ];
             return response()->json(['task' => $taskData], 200);
         } catch (\Exception $e) {

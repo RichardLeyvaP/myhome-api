@@ -19,11 +19,16 @@ class ProductController extends Controller
     {
         Log::info(auth()->user()->name . '-' . "Entra a buscar los productos");
         try {
-            $products = Product::get()->map(function ($query){
+            $products = Product::with('status', 'category')->get()->map(function ($query){
+                $getTranslatedProductCategories = $query->category->getTranslatedProductCategories();
+                $getTranslatedProducStatus = $query->status->getTranslatedProductStatus();
                 return [
+                    'id' => $query->id,
                     'name' => $query->name,
                     'categoryId' => $query->category_id,
+                    'nameCategory' => $getTranslatedProductCategories['name'],
                     'statusId' => $query->status_id,
+                    'nameStatus' => $getTranslatedProducStatus['name'],
                     'quantity' => $query->quantity,
                     'unitPrice' => $query->unit_price,
                     'totalPrice' => $query->total_price,
@@ -113,11 +118,16 @@ class ProductController extends Controller
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
-            $product = Product::where('id', $request->id)->get()->map(function ($query){
+            $product = Product::with('status', 'category')->where('id', $request->id)->get()->map(function ($query){
+                $getTranslatedProductCategories = $query->category->getTranslatedProductCategories();
+                $getTranslatedProducStatus = $query->status->getTranslatedProductStatus();
                 return [
+                    'id' => $query->id,
                     'name' => $query->name,
                     'categoryId' => $query->category_id,
+                    'nameCategory' => $getTranslatedProductCategories['name'],
                     'statusId' => $query->status_id,
+                    'nameStatus' => $getTranslatedProducStatus['name'],
                     'quantity' => $query->quantity,
                     'unitPrice' => $query->unit_price,
                     'totalPrice' => $query->total_price,
@@ -232,13 +242,9 @@ class ProductController extends Controller
                 return response()->json(['msg' => 'ProductNotFound'], 404);
             }
     
-            if ($product->image_product != "products/default.jpg")
-                {                   
-                    // Eliminar la imagen asociada si existe
-                    if ($product->image && Storage::disk('public')->exists($product->image)) {
-                        Storage::disk('public')->delete($product->image);
-                    }
-                }    
+            if ($product->image != 'products/default.jpg' && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
+            }
             // Eliminar el producto
             $product->delete();
     
