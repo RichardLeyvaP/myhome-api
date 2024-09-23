@@ -111,6 +111,7 @@ class PriorityController extends Controller
         Log::info(auth()->user()->name.'-'."Edita una prioridad");
         try {
             $validator = Validator::make($request->all(), [
+                'id' => 'required|numeric|exists:priorities,id',
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
                 'color' => 'required|string|size:7',
@@ -147,7 +148,7 @@ class PriorityController extends Controller
         Log::info(auth()->user()->name.'-'."Elimina una prioridad");
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required|numeric'
+                'id' => 'required|numeric|exists:priorities,id'
             ]);
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
