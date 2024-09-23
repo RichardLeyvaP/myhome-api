@@ -145,10 +145,6 @@ class PersonController extends Controller
                 'address' => 'nullable|string|max:255',
                 'image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048', // max:2048 = 2MB
             ]);
-
-            $validator = Validator::make($request->all(), [
-                'id' => 'required|numeric|exists:people,id'
-            ]);
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
@@ -190,12 +186,18 @@ class PersonController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request)
     {
         Log::info(auth()->user()->name . '-' . "Eliminando una persona");
         try {
+            $validator = Validator::make($request->all(), [
+                'id' => 'required|numeric|exists:people,id'
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['msg' => $validator->errors()->all()], 400);
+            }
             // Buscar la persona
-            $person = Person::find($id);
+            $person = Person::find($request->id);
             if (!$person) {
                 return response()->json(['msg' => 'PersonNotFound'], 404);
             }
