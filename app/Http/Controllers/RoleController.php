@@ -17,7 +17,17 @@ class RoleController extends Controller
         Log::info(auth()->user()->name.'-'."Entra a buscar los roles");
         try {
             $roles = Role::all();
-            return response()->json(['roles' => $roles], 200);
+            $translatedRoles = [];
+
+            foreach ($roles as $rol) {
+                $gettranslatedRoles = $rol->getTranslatedRoles();
+                $translatedRoles[] = [
+                    'id' => $rol->id,
+                    'name' => $gettranslatedRoles['name'],
+                    'description' => $gettranslatedRoles['description']
+                ];
+            }
+            return response()->json(['roles' => $translatedRoles], 200);
         } catch (\Exception $e) {
             Log::info('RoleController->index');
             Log::info($e->getMessage());
@@ -66,10 +76,17 @@ class RoleController extends Controller
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
-            $role = Role::find($request->id);
-            if (!$role) {
+            $roleTemp = Role::find($request->id);
+            if (!$roleTemp) {
                 return response()->json(['msg' => 'RoleNotfound'], 404);
             }
+
+                $gettranslatedRoles = $roleTemp->getTranslatedRoles();
+                $role [] = [
+                    'id' => $roleTemp->id,
+                    'name' => $gettranslatedRoles['name'],
+                    'description' => $gettranslatedRoles['description']
+                ];
             return response()->json(['rol' => $role], 200);
         } catch (\Exception $e) {
             Log::info('RoleController->show');

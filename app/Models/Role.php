@@ -13,4 +13,15 @@ class Role extends Model
         'name',
         'description'
     ];
+
+    public function getTranslatedRoles()
+    {
+        $translations = __('roles.' . $this->name);
+
+        return [
+            'name' => $translations['name'] ?? $this->name,
+            'description' => $translations['description'] ?? $this->description,
+        ];
+    }
+
 }

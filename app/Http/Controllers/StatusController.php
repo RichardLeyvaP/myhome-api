@@ -75,15 +75,22 @@ class StatusController extends Controller
         Log::info(auth()->user()->name.'-'."Busca un estado");
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required|numeric'
+                'id' => 'required|numeric|exists:statuses,id'
             ]);
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
-            $Status = Status::find($request->id);
-            if (!$Status) {
+            $StatusTemp = Status::find($request->id);
+            if (!$StatusTemp) {
                 return response()->json(['msg' => 'StatusNotfound'], 404);
             }
+            $getTranslatedStatus = $StatusTemp->getTranslatedStatus();
+            $Status [] = [
+                'id' => $StatusTemp->id,
+                'name' => $getTranslatedStatus['name'],
+                'description' => $getTranslatedStatus['description'],
+                'color' => $StatusTemp->color
+            ];
             return response()->json(['Status' => $Status], 200);
         } catch (\Exception $e) {
             Log::info('StatusController->show');

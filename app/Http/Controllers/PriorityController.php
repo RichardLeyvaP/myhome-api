@@ -26,9 +26,7 @@ class PriorityController extends Controller
                 'name' => $translatedAttributes['name'],
                 'description' => $translatedAttributes['description'],
                 'color' => $priority->color,
-                'level' => $priority->level,
-                'created_at' => $priority->created_at,
-                'updated_at' => $priority->updated_at,
+                'level' => $priority->level
             ];
         }
             return response()->json(['priorities' => $translatedPriorities], 200);
@@ -79,15 +77,23 @@ class PriorityController extends Controller
         Log::info(auth()->user()->name.'-'."Busca una prioridad");
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required|numeric'
+                'id' => 'required|numeric|exists:priorities,id'
             ]);
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
-            $priorities = Priority::find($request->id);
-            if (!$priorities) {
+            $priority = Priority::find($request->id);
+            if (!$priority) {
                 return response()->json(['msg' => 'PriorityNotfound'], 404);
             }
+            $getTranslatedPriorities = $priority->getTranslatedAttributes();
+            $priorities [] = [
+                'id' => $priority->id,
+                'name' => $getTranslatedPriorities['name'],
+                'description' => $getTranslatedPriorities['description'],
+                'color' => $priority->color,
+                'level' => $priority->level
+            ];
             return response()->json(['Priorities' => $priorities], 200);
         } catch (\Exception $e) {
             Log::info('PriorityController->show');
