@@ -39,6 +39,7 @@ class TaskController extends Controller
                         'startDate' => $task->start_date,
                         'endDate' => $task->end_date,
                         'priorityId' => $task->priority_id,
+                        'colorPriority' => $task->priority->color,
                         'namePriority' => $translatedAttributes['name'],
                         'statusId' => $task->status_id,
                         'nameStatus' => $getTranslatedStatus['name'],
@@ -54,48 +55,6 @@ class TaskController extends Controller
                         'children' => $this->mapChildren($task->children),
                     ];
                 });
-            /*$tasks =$tasks = Task::with('parent', 'children')
-            ->get()
-            ->filter(function ($task) {
-                // Excluir tareas que son hijas de otra (tienen un parent_id)
-                return $task->parent_id === null;
-            })
-            ->map(function ($task) {
-                return [
-                    'id' => $task->id,
-                    'title' => $task->title,
-                    'description' => $task->description,
-                    'start_date' => $task->start_date,
-                    'end_date' => $task->end_date,
-                    'priority_id' => $task->priority_id,
-                    'status_id' => $task->status_id,
-                    'category_id' => $task->category_id,
-                    'recurrence' => $task->recurrence,
-                    'estimated_time' => $task->estimated_time,
-                    'comments' => $task->comments,
-                    'attachments' => $task->attachments,
-                    'geo_location' => $task->geo_location,
-                    'parent_id' => $task->parent_id,
-                    'children' => $task->children->map(function ($child) {
-                        return [
-                            'id' => $child->id,
-                            'title' => $child->title,
-                            'description' => $child->description,
-                            'start_date' => $child->start_date,
-                            'end_date' => $child->end_date,
-                            'priority_id' => $child->priority_id,
-                            'status_id' => $child->status_id,
-                            'category_id' => $child->category_id,
-                            'recurrence' => $child->recurrence,
-                            'estimated_time' => $child->estimated_time,
-                            'comments' => $child->comments,
-                            'attachments' => $child->attachments,
-                            'geo_location' => $child->geo_location,
-                            'parent_id' => $child->parent_id,
-                        ];
-                    }),
-                ];
-            });*/
             if ($tasks->isEmpty()) {
                 return response()->json(['tasks' => $tasks], 204);
             }
@@ -145,6 +104,7 @@ class TaskController extends Controller
                         'startDate' => $task->start_date,
                         'endDate' => $task->end_date,
                         'priorityId' => $task->priority_id,
+                        'colorPriority' => $task->priority->color,
                         'namePriority' => $translatedAttributes['name'],
                         'statusId' => $task->status_id,
                         'nameStatus' => $getTranslatedStatus['name'],
@@ -186,6 +146,7 @@ class TaskController extends Controller
             'start_date' => $parent->start_date,
             'end_date' => $parent->end_date,
             'priority_id' => $parent->priority_id,
+            'colorPriority' => $parent->priority->color,
             'namePriority' => $translatedAttributes['name'],
             'status_id' => $parent->status_id,
             'nameStatus' => $getTranslatedStatus['name'],
@@ -217,6 +178,7 @@ class TaskController extends Controller
                 'startDate' => $child->start_date,
                 'endDate' => $child->end_date,
                 'priority_id' => $child->priority_id,
+                'colorPriority' => $child->priority->color,
                 'namePriority' => $translatedAttributes['name'],
                 'status_id' => $child->status_id,
                 'nameStatus' => $getTranslatedStatus['name'],
