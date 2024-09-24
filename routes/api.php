@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\HomePersonController;
 use App\Http\Controllers\HomeTypeController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PriorityController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StatusController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
+use App\Models\HomePerson;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -96,7 +98,7 @@ Route::group( ['middleware' => ["auth:sanctum"]], function(){
     Route::get('task', [TaskController::class, 'index']);
     Route::post('task', [TaskController::class, 'store']);
     Route::get('task-show', [TaskController::class, 'show']);
-    Route::post('task-updated', [TaskController::class, 'update']);
+    Route::post('task-update', [TaskController::class, 'update']);
     Route::post('task-destroy', [TaskController::class, 'destroy']);
     Route::get('task-history', [TaskController::class, 'getTaskHistory']);
     Route::get('task-date-apk', [TaskController::class, 'getTaskDate']);
@@ -143,6 +145,12 @@ Route::group( ['middleware' => ["auth:sanctum"]], function(){
     Route::post('home-update', [HomeController::class, 'update']);
     Route::post('home-destroy', [HomeController::class, 'destroy']);
 
+    // Rutas para Home_Person
+    Route::get('home-person', [HomePersonController::class, 'index']);
+    Route::post('home-person', [HomePersonController::class, 'store']);
+    Route::get('home-person-show', [HomePersonController::class, 'show']);
+    Route::put('home-person', [HomePersonController::class, 'update']);
+    Route::post('home-person-destroy', [HomePersonController::class, 'destroy']);
 
     //rutas unificadas
     Route::get('productcategory-productstatus-apk', [ProductController::class, 'productcategory_productstatus']);

@@ -24,4 +24,9 @@ class Role extends Model
         ];
     }
 
+    public function people()
+    {
+        return $this->belongsToMany(Person::class, 'home_person', 'role_id', 'person_id');
+    }
+
 }

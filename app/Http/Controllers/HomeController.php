@@ -27,7 +27,7 @@ class HomeController extends Controller
                     'homeTypeId' => $home->home_type_id,
                     'nameHomeType' => $getTranslatedHomeType['name'],
                     'residents' => $home->residents,
-                    'geolocation' => $home->geolocation,
+                    'geoLocation' => $home->geo_location,
                     'timezone' => $home->timezone,
                     'status' => $getTranslatedHomeStatus['status'],
                     'image' => $home->image,
@@ -54,7 +54,7 @@ class HomeController extends Controller
                 'address' => 'required|string|max:255',
                 'home_type_id' => 'required|exists:home_types,id', // Debe existir en la tabla home_types
                 'residents' => 'nullable|integer',
-                'geolocation' => 'nullable|string|max:255',
+                'geo_location' => 'nullable|string|max:255',
                 'timezone' => 'nullable|string|max:255',
                 'c' => 'nullable|string|max:50',
                 'image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048', // max:2048 = 2MB
@@ -73,7 +73,7 @@ class HomeController extends Controller
                 'address' => $request->address,
                 'home_type_id' => $request->home_type_id,
                 'residents' => $request->residents,
-                'geolocation' => $request->geolocation,
+                'geo_location' => $request->geolocation,
                 'timezone' => $request->timezone,
                 'status' => $request->status ?? 'Activa',
                 'image' => $filename,
@@ -119,7 +119,7 @@ class HomeController extends Controller
                 'home_type_id' => $home->home_type_id,
                 'nameHomeType' => $getTranslatedHomeType['name'],
                 'residents' => $home->residents,
-                'geolocation' => $home->geolocation,
+                'geoLocation' => $home->geo_location,
                 'timezone' => $home->timezone,
                 'status' => $getTranslatedHomeStatus['status'],
                 'image' => $home->image,
@@ -137,17 +137,17 @@ class HomeController extends Controller
     {
         Log::info(auth()->user()->name . '-' . "Editando un hogar");
         try {
-            // Validación de los datos
+            // Validación de los datos (usamos 'sometimes' para validar solo si están presentes)
             $validator = Validator::make($request->all(), [
                 'id' => 'required|numeric|exists:homes,id',
-                'name' => 'nullable|string|max:255',
-                'address' => 'required|string|max:255',
-                'home_type_id' => 'required|exists:home_types,id',
-                'residents' => 'nullable|integer|min:1',
-                'geolocation' => 'nullable|string|max:255',
-                'timezone' => 'nullable|string|max:255',
-                'status' => 'nullable|string|max:50',
-                'image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+                'name' => 'sometimes|nullable|string|max:255',
+                'address' => 'sometimes|required|string|max:255',
+                'home_type_id' => 'sometimes|required|exists:home_types,id',
+                'residents' => 'sometimes|nullable|integer|min:1',
+                'geo_location' => 'sometimes|nullable|string|max:255',
+                'timezone' => 'sometimes|nullable|string|max:255',
+                'status' => 'sometimes|nullable|string|max:50',
+                'image' => 'sometimes|nullable|file|mimes:jpg,jpeg,png|max:2048',
             ]);
 
             if ($validator->fails()) {
@@ -163,23 +163,28 @@ class HomeController extends Controller
             // Procesar la imagen si se sube una nueva
             $filename = $home->image;
             if ($request->hasFile('image')) {
+                // Eliminar la imagen anterior si no es la predeterminada
                 if ($home->image != 'homes/default.jpg' && Storage::disk('public')->exists($home->image)) {
                     Storage::disk('public')->delete($home->image);
                 }
+                // Guardar la nueva imagen
                 $filename = $request->file('image')->storeAs('homes', $home->id . '.' . $request->file('image')->extension(), 'public');
             }
 
-            // Actualizar los datos del hogar
-            $home->update([
-                'name' => $request->name,
-                'address' => $request->address,
-                'home_type_id' => $request->home_type_id,
-                'residents' => $request->residents,
-                'geolocation' => $request->geolocation,
-                'timezone' => $request->timezone,
-                'status' => $request->status ?? 'Activa',
+            // Filtrar los datos a actualizar
+            $homeData = array_filter([
+                'name' => $request->name ?? $home->name,
+                'address' => $request->address ?? $home->address,
+                'home_type_id' => $request->home_type_id ?? $home->home_type_id,
+                'residents' => $request->residents ?? $home->residents,
+                'geo_location' => $request->geolocation ?? $home->geolocation,
+                'timezone' => $request->timezone ?? $home->timezone,
+                'status' => $request->status ?? $home->status,
                 'image' => $filename,
-            ]);
+            ], fn($value) => !is_null($value));
+
+            // Actualizar los datos del hogar
+            $home->update($homeData);
 
             return response()->json(['msg' => 'HomeUpdated', 'home' => $home], 200);
         } catch (\Exception $e) {
@@ -191,12 +196,18 @@ class HomeController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request)
     {
         Log::info(auth()->user()->name . '-' . "Eliminando un hogar");
         try {
+            $validator = Validator::make($request->all(), [
+                'id' => 'required|numeric|exists:homes,id',
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['msg' => $validator->errors()->all()], 400);
+            }
             // Buscar el hogar
-            $home = Home::find($id);
+            $home = Home::find($request->id);
             if (!$home) {
                 return response()->json(['msg' => 'HomeNotFound'], 404);
             }

@@ -34,4 +34,11 @@ class Home extends Model
     {
         return $this->belongsTo(HomeType::class);
     }
+
+    public function people()
+    {
+        return $this->belongsToMany(Person::class, 'home_person')
+            ->withPivot('role_id') // Incluye el atributo role_id en la relación
+            ->withTimestamps(); // Incluye created_at y updated_at
+    }
 }

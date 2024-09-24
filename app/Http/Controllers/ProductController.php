@@ -156,20 +156,20 @@ class ProductController extends Controller
     {
         Log::info(auth()->user()->name . '-' . "Edita un producto");
         try {
-            // Validación de los datos
+            // Validar solo los campos presentes en la petición
             $validator = Validator::make($request->all(), [
                 'id' => 'required|numeric|exists:products,id',
-                'name' => 'required|string|max:255',
-                'category_id' => 'required|exists:product_categories,id',
-                'status_id' => 'required|exists:product_statuses,id',
-                'quantity' => 'required|integer|min:0',
-                'unit_price' => 'required|numeric|min:0',
-                'purchase_date' => 'required|date',
-                'purchase_place' => 'nullable|string|max:255',
-                'expiration_date' => 'nullable|date|after_or_equal:purchase_date',
-                'brand' => 'nullable|string|max:255',
-                'additional_notes' => 'nullable|string',
-                'image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048', // max:2048 = 2MB
+                'name' => 'sometimes|required|string|max:255',
+                'category_id' => 'sometimes|required|exists:product_categories,id',
+                'status_id' => 'sometimes|required|exists:product_statuses,id',
+                'quantity' => 'sometimes|required|integer|min:0',
+                'unit_price' => 'sometimes|required|numeric|min:0',
+                'purchase_date' => 'sometimes|required|date',
+                'purchase_place' => 'sometimes|nullable|string|max:255',
+                'expiration_date' => 'sometimes|nullable|date|after_or_equal:purchase_date',
+                'brand' => 'sometimes|nullable|string|max:255',
+                'additional_notes' => 'sometimes|nullable|string',
+                'image' => 'sometimes|nullable|file|mimes:jpg,jpeg,png|max:2048', // max:2048 = 2MB
             ]);
 
             if ($validator->fails()) {
@@ -186,39 +186,41 @@ class ProductController extends Controller
             $filename = $product->image;
             if ($request->hasFile('image')) {
                 // Verificar si el archivo existe y eliminarlo
-                if ($product->image_product != "products/default.jpg")
-                {
-                    if ($product->image && Storage::disk('public')->exists($product->image)) {
-                        Storage::disk('public')->delete($product->image);
-                    }
+                if ($product->image_product != "products/default.jpg" && Storage::disk('public')->exists($product->image)) {
+                    Storage::disk('public')->delete($product->image);
+                }
+
                 // Guardar el nuevo archivo
                 $filename = $request->file('image')->storeAs('products', $product->id . '.' . $request->file('image')->extension(), 'public');
-                }
             }
 
-            // Actualizar el producto con los datos proporcionados
-            $product->update([
-                'name' => $request->name,
-                'category_id' => $request->category_id,
-                'status_id' => $request->status_id,
-                'quantity' => $request->quantity,
-                'unit_price' => $request->unit_price,
-                'total_price' => $request->unit_price * $request->quantity,
-                'purchase_date' => $request->purchase_date,
-                'purchase_place' => $request->purchase_place,
-                'expiration_date' => $request->expiration_date,
-                'brand' => $request->brand,
-                'additional_notes' => $request->additional_notes,
+            // Filtrar los campos que tienen datos en la petición
+            $productData = array_filter([
+                'name' => $request->name ?? null,
+                'category_id' => $request->category_id ?? null,
+                'status_id' => $request->status_id ?? null,
+                'quantity' => $request->quantity ?? null,
+                'unit_price' => $request->unit_price ?? null,
+                'total_price' => isset($request->unit_price, $request->quantity) ? $request->unit_price * $request->quantity : null,
+                'purchase_date' => $request->purchase_date ?? null,
+                'purchase_place' => $request->purchase_place ?? null,
+                'expiration_date' => $request->expiration_date ?? null,
+                'brand' => $request->brand ?? null,
+                'additional_notes' => $request->additional_notes ?? null,
                 'image' => $filename,
-            ]);
+            ], fn($value) => !is_null($value));
+
+            // Actualizar el producto con los datos filtrados
+            $product->update($productData);
 
             return response()->json(['msg' => 'ProductUpdateOk', 'product' => $product], 200);
         } catch (\Exception $e) {
-            Log::info('ProductController->update');
-            Log::info($e->getMessage());
+            Log::error('ProductController->update');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
+
 
     /**
      * Remove the specified resource from storage.

@@ -349,66 +349,82 @@ class TaskController extends Controller
      */
     public function update(Request $request)
     {
-        Log::info(auth()->user()->name.'-'."Edita una tarea");
+        Log::info(auth()->user()->name . '-' . "Edita una tarea");        
         try {
+            // Extraer el array de datos desde la request
+            $data = $request->all();
+            // Validar solo los campos que puedan estar presentes
             $validator = Validator::make($request->all(), [
                 'id' => 'required|numeric|exists:tasks,id',
-                'title' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'start_date' => 'nullable|date',
-                'end_date' => 'nullable|date|after_or_equal:start_date',
-                'priority_id' => 'required|exists:priorities,id',
-                'parent_id' => 'nullable|exists:tasks,id',
-                'status_id' => 'required|exists:statuses,id',
-                'category_id' => 'required|exists:categories,id',
-                'recurrence' => 'nullable|string|max:255',
-                'estimated_time' => 'nullable|integer|min:0',
-                'comments' => 'nullable|string',
-                'attachments' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048', // max:2048 = 2MB
-                'geo_location' => 'nullable|string|max:255',
+                'title' => 'sometimes|required|string|max:255',
+                'description' => 'sometimes|nullable|string',
+                'start_date' => 'sometimes|nullable|date',
+                'end_date' => 'sometimes|nullable|date|after_or_equal:start_date',
+                'priority_id' => 'sometimes|required|exists:priorities,id',
+                'parent_id' => 'sometimes|nullable|exists:tasks,id',
+                'status_id' => 'sometimes|required|exists:statuses,id',
+                'category_id' => 'sometimes|required|exists:categories,id',
+                'recurrence' => 'sometimes|nullable|string|max:255',
+                'estimated_time' => 'sometimes|nullable|integer|min:0',
+                'comments' => 'sometimes|nullable|string',
+                'attachments' => 'sometimes|nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
+                'geo_location' => 'sometimes|nullable|string|max:255',
             ]);
+            
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
-            
-            $task = Task::find($request->id);
+
+            // Buscar la tarea
+            $task = Task::find($data['id']);
             if (!$task) {
-                return response()->json(['msg' => 'TaskNotfound'], 404);
+                return response()->json(['msg' => 'TaskNotFound'], 404);
             }
+
+            // Manejo de archivos adjuntos
             $filename = $task->attachments;
-            if ($request->hasFile('attachments')){
-                if ($task->attachments != "tasks/default.jpg")
-                {
-                    if ($task->attachments && Storage::disk('public')->exists($task->attachments)) {
+            if (isset($data['attachments']) && $request->hasFile('attachments')) {
+                if ($task->attachments != "tasks/default.jpg") {
+                    if (Storage::disk('public')->exists($task->attachments)) {
                         Storage::disk('public')->delete($task->attachments);
                     }
-                // Guardar el nuevo archivo
-                $filename = $request->file('attachments')->storeAs('tasks', $task->id . '.' . $request->file('attachments')->extension(), 'public');
                 }
+                // Guardar el nuevo archivo
+                $filename = $request->file('attachments')->storeAs(
+                    'tasks', 
+                    $task->id . '.' . $request->file('attachments')->extension(), 
+                    'public'
+                );
             }
-            $task->update([
-                'title' => $request->title,
-                'description' => $request->description,
-                'start_date' => $request->start_date,
-                'end_date' => $request->end_date,
-                'priority_id' => $request->priority_id,
-                'parent_id' => $request->parent_id,
-                'status_id' => $request->status_id,
-                'category_id' => $request->category_id,
-                'recurrence' => $request->recurrence,
-                'estimated_time' => $request->estimated_time,
-                'comments' => $request->comments,
+
+            // Filtrar los datos para actualizar solo los campos presentes
+            $taskData = array_filter([
+                'title' => $data['title'] ?? null,
+                'description' => $data['description'] ?? null,
+                'start_date' => $data['start_date'] ?? null,
+                'end_date' => $data['end_date'] ?? null,
+                'priority_id' => $data['priority_id'] ?? null,
+                'parent_id' => $data['parent_id'] ?? null,
+                'status_id' => $data['status_id'] ?? null,
+                'category_id' => $data['category_id'] ?? null,
+                'recurrence' => $data['recurrence'] ?? null,
+                'estimated_time' => $data['estimated_time'] ?? null,
+                'comments' => $data['comments'] ?? null,
                 'attachments' => $filename,
-                'geo_location' => $request->geo_location,
-            ]);
-    
+                'geo_location' => $data['geo_location'] ?? null,
+            ], fn($value) => !is_null($value)); // Elimina los valores que sean null
+
+            // Actualizar la tarea
+            $task->update($taskData);
+
             return response()->json(['msg' => 'TaskUpdateOk', 'task' => $task], 200);
         } catch (\Exception $e) {
-            Log::info('TaskController->update');
-            Log::info($e->getMessage());
+            Log::error('TaskController->update');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
+
 
     /**
      * Remove the specified resource from storage.

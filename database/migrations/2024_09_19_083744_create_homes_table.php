@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('address'); // Dirección del hogar
             $table->unsignedBigInteger('home_type_id'); // Relación con product_statuses
             $table->integer('residents')->nullable(); // Número de residentes (default 1)
-            $table->string('geolocation')->nullable(); // Ubicación geográfica (puede ser nulo)
+            $table->string('geo_location')->nullable(); // Ubicación geográfica (puede ser nulo)
             $table->string('timezone')->nullable(); // Zona horaria
             $table->string('status')->default('Activa'); // Estado del hogar
             $table->string('image')->nullable(); // Archivo o imagen a guardar
