@@ -269,8 +269,9 @@ class ProductController extends Controller
                 $getTranslatedProductCategories = $productcategory->getTranslatedProductCategories();
                 $translatedProductCategories[] = [
                     'id' => $productcategory->id,
-                    'nameProductCategory' => $getTranslatedProductCategories['name'],
-                    'descriptionProductCategory' => $getTranslatedProductCategories['description']
+                    'nameCategory' => $getTranslatedProductCategories['name'],
+                    'descriptionCategory' => $getTranslatedProductCategories['description'],
+                    'iconCategory' => $productcategory->icon
                 ];
             }
 
@@ -281,8 +282,9 @@ class ProductController extends Controller
                 $getTranslatedProducStatus = $productstate->getTranslatedProductStatus();
                 $translatedProductStatus[] = [
                     'id' => $productstate->id,
-                    'nameProductStatus' => $getTranslatedProducStatus['name'],
-                    'descriptionProductStatus' => $getTranslatedProducStatus['description']
+                    'nameStatus' => $getTranslatedProducStatus['name'],
+                    'descriptionStatus' => $getTranslatedProducStatus['description'],
+                    'iconCategory' => $productstate->icon
                 ];
             }
             return response()->json(['productcategories' => $translatedProductCategories, 'productstatus' => $translatedProductStatus], 200);
