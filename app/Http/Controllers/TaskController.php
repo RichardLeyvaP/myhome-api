@@ -473,9 +473,9 @@ class TaskController extends Controller
                 $translatedAttributes = $category->getTranslatedCategories();
                 return [
                     'id' => $category->id,
-                    'name' => $translatedAttributes['name'],
-                    'description' => $translatedAttributes['description'],
-                    'color' => $category->color,
+                    'nameCategory' => $translatedAttributes['name'],
+                    'descriptionCategory' => $translatedAttributes['description'],
+                    'colorCategory' => $category->color,
                     'icon' => $category->icon,
                     'parent_id' => $category->parent_id,
                     //'parent' => $category->parent ? $this->mapParent($category->parent) : null,
@@ -491,11 +491,9 @@ class TaskController extends Controller
                 $getTranslatedStatus = $state->getTranslatedStatus();
                 $translatedStatuses[] = [
                     'id' => $state->id,
-                    'name' => $getTranslatedStatus['name'],
-                    'description' => $getTranslatedStatus['description'],
-                    'color' => $state->color,
-                    'created_at' => $state->created_at,
-                    'updated_at' => $state->updated_at,
+                    'nameStatus' => $getTranslatedStatus['name'],
+                    'descriptionStatus' => $getTranslatedStatus['description'],
+                    'colorStatus' => $state->color
                 ];
             }
 
@@ -507,12 +505,10 @@ class TaskController extends Controller
                 $translatedAttributes = $priority->getTranslatedAttributes();
                 $translatedPriorities[] = [
                     'id' => $priority->id,
-                    'name' => $translatedAttributes['name'],
-                    'description' => $translatedAttributes['description'],
-                    'color' => $priority->color,
-                    'level' => $priority->level,
-                    'created_at' => $priority->created_at,
-                    'updated_at' => $priority->updated_at,
+                    'namePriority' => $translatedAttributes['name'],
+                    'descriptionPriority' => $translatedAttributes['description'],
+                    'colorPriority' => $priority->color,
+                    'level' => $priority->level
                 ];
             }
             
