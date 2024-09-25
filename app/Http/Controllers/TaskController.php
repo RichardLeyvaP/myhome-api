@@ -470,16 +470,16 @@ class TaskController extends Controller
                 return $category->parent_id === null;
             })
             ->map(function ($category) {
-                $translatedAttributes = $category->getTranslatedCategories();
+                $translatedCategory = $category->getTranslatedCategories();
                 return [
                     'id' => $category->id,
-                    'nameCategory' => $translatedAttributes['name'],
-                    'descriptionCategory' => $translatedAttributes['description'],
+                    'nameCategory' => $translatedCategory['name'],
+                    'descriptionCategory' => $translatedCategory['description'],
                     'colorCategory' => $category->color,
                     'icon' => $category->icon,
                     'parent_id' => $category->parent_id,
                     //'parent' => $category->parent ? $this->mapParent($category->parent) : null,
-                    'children' => $this->mapChildren($category->children),
+                    'children' => $this->mapChildrenCategory($category->children),
                 ];
             })->Values();
 
@@ -518,5 +518,21 @@ class TaskController extends Controller
             Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
+    }
+
+    public function mapChildrenCategory($children)
+    {
+        return $children->map(function ($child) {
+            $translatedAttributes = $child->getTranslatedCategories();
+            return [
+                'id' => $child->id,
+                'nameCategory' => $translatedAttributes['name'],
+                'descriptionCategory' => $translatedAttributes['description'],
+                'colorCategory' => $child->color,
+                'icon' => $child->icon,
+                'parent_id' => $child->parent_id,
+                'children' => $this->mapChildren($child->children), // Recursión para los hijos de los hijos
+            ];
+        });
     }
 }
