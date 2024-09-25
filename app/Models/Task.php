@@ -98,4 +98,10 @@ class Task extends Model
     {
         $activity->properties = $activity->properties->put('model_id', $this->id);
     }
+
+    // Definir el scope para filtrar por fecha de inicio
+    public function scopeWhereStartDate($query, $startDate)
+    {
+        return $query->whereDate('start_date', $startDate);
+    }
 }

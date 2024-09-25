@@ -70,7 +70,7 @@ class TaskController extends Controller
 
     public function getTaskDate(Request $request)
     {
-        Log::info(auth()->user()->name.'-'."Entra a buscar las tareas dada una fecha");
+        //Log::info(auth()->user()->name.'-'."Entra a buscar las tareas dada una fecha");
         try {
                 // Validación de los datos
                 $validator = Validator::make($request->all(), [
@@ -81,7 +81,7 @@ class TaskController extends Controller
                     return response()->json(['msg' => $validator->errors()->all()], 400);
                 }
                 $tasks = Task::with('parent', 'children', 'priority', 'status', 'category')
-                ->whereDate('start_date', $request->start_date)
+                ->whereStartDate($request->start_date)
                 ->get();
             
                 // Recolectamos todas las IDs de subtareas
@@ -204,7 +204,7 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        Log::info(auth()->user()->name.'-'."Crea una nueva tarea");
+        //Log::info(auth()->user()->name.'-'."Crea una nueva tarea");
         try {
             // Validación de los datos
             $validator = Validator::make($request->all(), [
@@ -461,7 +461,7 @@ class TaskController extends Controller
 
     public function category_status_priority()
     {
-        Log::info(auth()->user()->name.'-'."Entra a ruta unificada(category_status_priority) buscar las categorias a estados y prioridades");
+        //Log::info(auth()->user()->name.'-'."Entra a ruta unificada(category_status_priority) buscar las categorias a estados y prioridades");
         try {
             $categories = Category::with('parent', 'children')->ofType('Task')
             ->get()

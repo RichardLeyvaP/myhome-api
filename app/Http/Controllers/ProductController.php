@@ -19,7 +19,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        Log::info(auth()->user()->name . '-' . "Entra a buscar los productos");
+        //Log::info(auth()->user()->name . '-' . "Entra a buscar los productos");
         try {
             $products = Product::with('status', 'category')->get()->map(function ($query){
                 $getTranslatedCategories = $query->category->getTranslatedCategories();
@@ -54,7 +54,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        Log::info(auth()->user()->name . '-' . "Crea un nuevo producto");
+        //Log::info(auth()->user()->name . '-' . "Crea un nuevo producto");
         try {
             // Validación de los datos
             $validator = Validator::make($request->all(), [
@@ -262,7 +262,7 @@ class ProductController extends Controller
 
     public function productcategory_productstatus()
     {
-        Log::info(auth()->user()->name . '-' . "Entra a buscar las categorias y estado de los productos");
+        //Log::info(auth()->user()->name . '-' . "Entra a buscar las categorias y estado de los productos");
         try {
             $productcategories = Category::ofType('Product')->get()->map(function ($productcategory) {
                 $translated = $productcategory->getTranslatedCategories();

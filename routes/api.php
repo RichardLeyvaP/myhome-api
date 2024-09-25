@@ -142,3 +142,11 @@ Route::group( ['middleware' => ["auth:sanctum"]], function(){
     Route::get('productcategory-productstatus-apk', [ProductController::class, 'productcategory_productstatus']);
     Route::get('category-status-priority-apk', [TaskController::class, 'category_status_priority']);
 });
+
+Route::post('products-test', [ProductController::class, 'store']);
+Route::get('products-test', [ProductController::class, 'index']);
+Route::get('task-date-apk-test', [TaskController::class, 'getTaskDate']);
+Route::post('task-test', [TaskController::class, 'store']);
+ //rutas unificadas
+ Route::get('productcategory-productstatus-apk-test', [ProductController::class, 'productcategory_productstatus']);
+ Route::get('category-status-priority-apk-test', [TaskController::class, 'category_status_priority']);
