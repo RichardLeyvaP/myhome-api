@@ -463,7 +463,7 @@ class TaskController extends Controller
     {
         Log::info(auth()->user()->name.'-'."Entra a ruta unificada(category_status_priority) buscar las categorias a estados y prioridades");
         try {
-            $categories = Category::with('parent', 'children')
+            $categories = Category::with('parent', 'children')->ofType('Task')
             ->get()
             ->filter(function ($category) {
                 // Solo mostrar categorías que no tienen padre (categorías principales)
@@ -476,7 +476,7 @@ class TaskController extends Controller
                     'nameCategory' => $translatedCategory['name'],
                     'descriptionCategory' => $translatedCategory['description'],
                     'colorCategory' => $category->color,
-                    'icon' => $category->icon,
+                    'iconCategory' => $category->icon,
                     'parent_id' => $category->parent_id,
                     //'parent' => $category->parent ? $this->mapParent($category->parent) : null,
                     'children' => $this->mapChildrenCategory($category->children),
@@ -484,35 +484,30 @@ class TaskController extends Controller
             })->Values();
 
             //Estados
-            $status = Status::all();
-            $translatedStatuses = [];
-
-            foreach ($status as $state) {
+            $status = Status::ofType('Task')->get()->map(function ($state) {
                 $getTranslatedStatus = $state->getTranslatedStatus();
-                $translatedStatuses[] = [
+                return [
                     'id' => $state->id,
                     'nameStatus' => $getTranslatedStatus['name'],
                     'descriptionStatus' => $getTranslatedStatus['description'],
-                    'colorStatus' => $state->color
+                    'colorStatus' => $state->color,
+                    'iconStatus' => $state->icon
                 ];
-            }
+            });
 
             //prioridades
-            $priorities = Priority::all();
-            $translatedPriorities = [];
-
-            foreach ($priorities as $priority) {
+            $priorities = Priority::all()->map(function ($priority) {
                 $translatedAttributes = $priority->getTranslatedAttributes();
-                $translatedPriorities[] = [
+                return [
                     'id' => $priority->id,
                     'namePriority' => $translatedAttributes['name'],
                     'descriptionPriority' => $translatedAttributes['description'],
                     'colorPriority' => $priority->color,
                     'level' => $priority->level
                 ];
-            }
+            });
             
-            return response()->json(['categories' => $categories, 'status' => $translatedStatuses, 'priorities' => $translatedPriorities], 200);
+            return response()->json(['categories' => $categories, 'status' => $status, 'priorities' => $priorities], 200);
         } catch (\Exception $e) {
             Log::info('CategoryController->index');
             Log::info($e->getMessage());
@@ -523,13 +518,13 @@ class TaskController extends Controller
     public function mapChildrenCategory($children)
     {
         return $children->map(function ($child) {
-            $translatedAttributes = $child->getTranslatedCategories();
+            $translatedCategory = $child->getTranslatedCategories();
             return [
                 'id' => $child->id,
-                'nameCategory' => $translatedAttributes['name'],
-                'descriptionCategory' => $translatedAttributes['description'],
+                'nameCategory' => $translatedCategory['name'],
+                'descriptionCategory' => $translatedCategory['description'],
                 'colorCategory' => $child->color,
-                'icon' => $child->icon,
+                'iconCategory' => $child->icon,
                 'parent_id' => $child->parent_id,
                 'children' => $this->mapChildren($child->children), // Recursión para los hijos de los hijos
             ];

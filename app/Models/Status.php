@@ -12,7 +12,9 @@ class Status extends Model
     protected $fillable = [
         'name',
         'description',
-        'color'
+        'color',
+        'icon',
+        'type'
     ];
 
     public function getTranslatedStatus()
@@ -31,6 +33,17 @@ class Status extends Model
     public function tasks()
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    // Definir un scope para filtrar por tipo
+    public function scopeOfType($query, $type)
+    {
+        return $query->where('type', $type);
     }
 
 }

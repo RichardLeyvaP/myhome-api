@@ -26,7 +26,8 @@ class StatusController extends Controller
             'id' => $state->id,
             'name' => $getTranslatedStatus['name'],
             'description' => $getTranslatedStatus['description'],
-            'color' => $state->color
+            'color' => $state->color,
+            'icon' => $state->icon 
         ];
     }
             return response()->json(['status' => $translatedStatuses], 200);
@@ -47,7 +48,9 @@ class StatusController extends Controller
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
-                'color' => 'required|string|size:7'
+                'color' => 'required|string',
+                'type' => 'required|string',
+                'icon' => 'nullable|string',
             ]);
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
@@ -56,7 +59,9 @@ class StatusController extends Controller
             $Status = Status::create([
                 'name' => $request->name,
                 'description' => $request->description,
-                'color' => $request->color
+                'color' => $request->color,
+                'icon' => $request->icon, 
+                'type' => $request->type 
             ]);
     
             return response()->json(['msg' => 'StatusStoreOk', 'Status' => $Status], 201);
@@ -89,7 +94,8 @@ class StatusController extends Controller
                 'id' => $StatusTemp->id,
                 'name' => $getTranslatedStatus['name'],
                 'description' => $getTranslatedStatus['description'],
-                'color' => $StatusTemp->color
+                'color' => $StatusTemp->color,
+                'icon' => $StatusTemp->icon
             ];
             return response()->json(['Status' => $Status], 200);
         } catch (\Exception $e) {
@@ -110,7 +116,9 @@ class StatusController extends Controller
                 'id' => 'required|numeric|exists:statuses,id',
                 'name' => 'sometimes|required|string|max:255',
                 'description' => 'nullable|string',
-                'color' => 'sometimes|required|string|size:7'
+                'color' => 'sometimes|required|string',
+                'icon' => 'sometimes|nullable|string',
+                'type' => 'sometimes|nullable|string'
             ]);
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
@@ -123,7 +131,9 @@ class StatusController extends Controller
             $Status->update([
                 'name' => $request->name,
                 'description' => $request->description,
-                'color' => $request->color
+                'color' => $request->color,
+                'icon' => $request->icon,
+                'type' => $request->type,
             ]);
     
             return response()->json(['msg' => 'StatusUpdateOk', 'Status' => $Status], 200);

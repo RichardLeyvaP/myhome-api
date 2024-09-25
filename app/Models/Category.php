@@ -14,6 +14,7 @@ class Category extends Model
         'description',
         'color',
         'icon',
+        'type',
         'parent_id',
     ];
 
@@ -53,6 +54,17 @@ class Category extends Model
     public function tasks()
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    // Definir un scope para filtrar por tipo
+    public function scopeOfType($query, $type)
+    {
+        return $query->where('type', $type);
     }
 
 }

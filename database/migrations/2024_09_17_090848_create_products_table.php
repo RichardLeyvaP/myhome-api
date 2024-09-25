@@ -28,8 +28,8 @@ return new class extends Migration
             $table->timestamps(); // Created_at y updated_at
 
             // Definir las claves foráneas
-            $table->foreign('category_id')->references('id')->on('product_categories')->onDelete('cascade');
-            $table->foreign('status_id')->references('id')->on('product_statuses')->onDelete('cascade');
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->foreign('status_id')->references('id')->on('statuses')->onDelete('cascade');
             // Puedes agregar la relación con la tabla de hogares si existe
         });
     }

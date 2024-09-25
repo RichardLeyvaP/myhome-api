@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductStatus;
+use App\Models\Status;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -20,15 +22,15 @@ class ProductController extends Controller
         Log::info(auth()->user()->name . '-' . "Entra a buscar los productos");
         try {
             $products = Product::with('status', 'category')->get()->map(function ($query){
-                $getTranslatedProductCategories = $query->category->getTranslatedProductCategories();
-                $getTranslatedProducStatus = $query->status->getTranslatedProductStatus();
+                $getTranslatedCategories = $query->category->getTranslatedCategories();
+                $getTranslatedStatus = $query->status->getTranslatedStatus();
                 return [
                     'id' => $query->id,
                     'name' => $query->name,
                     'categoryId' => $query->category_id,
-                    'nameCategory' => $getTranslatedProductCategories['name'],
+                    'nameCategory' => $getTranslatedCategories['name'],
                     'statusId' => $query->status_id,
-                    'nameStatus' => $getTranslatedProducStatus['name'],
+                    'nameStatus' => $getTranslatedStatus['name'],
                     'quantity' => $query->quantity,
                     'unitPrice' => $query->unit_price,
                     'totalPrice' => $query->total_price,
@@ -57,8 +59,8 @@ class ProductController extends Controller
             // Validación de los datos
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
-                'category_id' => 'required|exists:product_categories,id',
-                'status_id' => 'required|exists:product_statuses,id',
+                'category_id' => 'required|exists:categories,id',
+                'status_id' => 'required|exists:statuses,id',
                 'quantity' => 'required|integer|min:0',
                 'unit_price' => 'required|numeric|min:0',
                 'purchase_date' => 'nullable|date',
@@ -119,15 +121,15 @@ class ProductController extends Controller
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
             $product = Product::with('status', 'category')->where('id', $request->id)->get()->map(function ($query){
-                $getTranslatedProductCategories = $query->category->getTranslatedProductCategories();
-                $getTranslatedProducStatus = $query->status->getTranslatedProductStatus();
+                $getTranslatedCategories = $query->category->getTranslatedCategories();
+                $getTranslatedStatus = $query->status->getTranslatedStatus();
                 return [
                     'id' => $query->id,
                     'name' => $query->name,
                     'categoryId' => $query->category_id,
-                    'nameCategory' => $getTranslatedProductCategories['name'],
+                    'nameCategory' => $getTranslatedCategories['name'],
                     'statusId' => $query->status_id,
-                    'nameStatus' => $getTranslatedProducStatus['name'],
+                    'nameStatus' => $getTranslatedStatus['name'],
                     'quantity' => $query->quantity,
                     'unitPrice' => $query->unit_price,
                     'totalPrice' => $query->total_price,
@@ -160,8 +162,8 @@ class ProductController extends Controller
             $validator = Validator::make($request->all(), [
                 'id' => 'required|numeric|exists:products,id',
                 'name' => 'sometimes|required|string|max:255',
-                'category_id' => 'sometimes|required|exists:product_categories,id',
-                'status_id' => 'sometimes|required|exists:product_statuses,id',
+                'category_id' => 'sometimes|required|exists:categories,id',
+                'status_id' => 'sometimes|required|exists:statuses,id',
                 'quantity' => 'sometimes|required|integer|min:0',
                 'unit_price' => 'sometimes|required|numeric|min:0',
                 'purchase_date' => 'sometimes|required|date',
@@ -262,32 +264,27 @@ class ProductController extends Controller
     {
         Log::info(auth()->user()->name . '-' . "Entra a buscar las categorias y estado de los productos");
         try {
-            $productcategories = ProductCategory::all();
-            $translatedProductCategories = [];
-
-            foreach ($productcategories as $productcategory) {
-                $getTranslatedProductCategories = $productcategory->getTranslatedProductCategories();
-                $translatedProductCategories[] = [
+            $productcategories = Category::ofType('Product')->get()->map(function ($productcategory) {
+                $translated = $productcategory->getTranslatedCategories();
+                return [
                     'id' => $productcategory->id,
-                    'nameCategory' => $getTranslatedProductCategories['name'],
-                    'descriptionCategory' => $getTranslatedProductCategories['description'],
-                    'iconCategory' => $productcategory->icon
+                    'nameCategory' => $translated['name'],
+                    'descriptionCategory' => $translated['description'],
+                    'colorCategory' => $productcategory->color,
+                    'iconCategory' => $productcategory->icon,
                 ];
-            }
+            });
 
-            $productstatus = ProductStatus::all();
-            $translatedProductStatus = [];
-
-            foreach ($productstatus as $productstate) {
-                $getTranslatedProducStatus = $productstate->getTranslatedProductStatus();
-                $translatedProductStatus[] = [
+            $productstatus = Status::ofType('Product')->get()->map(function ($productstate) {
+                $translated = $productstate->getTranslatedStatus();
+                return [
                     'id' => $productstate->id,
-                    'nameStatus' => $getTranslatedProducStatus['name'],
-                    'descriptionStatus' => $getTranslatedProducStatus['description'],
-                    'iconCategory' => $productstate->icon
+                    'nameStatus' => $translated['name'],
+                    'descriptionStatus' => $translated['description'],
+                    'colorStatus' => $productstate->icon, // Aquí era 'colorStatus' pero el valor era 'icon'
                 ];
-            }
-            return response()->json(['productcategories' => $translatedProductCategories, 'productstatus' => $translatedProductStatus], 200);
+            });
+            return response()->json(['productcategories' => $productcategories, 'productstatus' => $productstatus], 200);
         } catch (\Exception $e) {
             Log::error('ProductController->productcategory_productstatus: ' . $e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);

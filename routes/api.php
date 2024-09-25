@@ -103,20 +103,6 @@ Route::group( ['middleware' => ["auth:sanctum"]], function(){
     Route::get('task-history', [TaskController::class, 'getTaskHistory']);
     Route::get('task-date-apk', [TaskController::class, 'getTaskDate']);
 
-    // Rutas para ProductCategory
-    Route::get('product-categories', [ProductCategoryController::class, 'index']);
-    Route::post('product-categories', [ProductCategoryController::class, 'store']);
-    Route::get('product-categories-show', [ProductCategoryController::class, 'show']);
-    Route::put('product-categories', [ProductCategoryController::class, 'update']);
-    Route::post('product-categories-destroy', [ProductCategoryController::class, 'destroy']);
-
-    // Rutas para ProductStatus
-    Route::get('product-statuses', [ProductStatusController::class, 'index']);
-    Route::post('product-statuses', [ProductStatusController::class, 'store']);
-    Route::get('product-statuses-show', [ProductStatusController::class, 'show']);
-    Route::put('product-statuses', [ProductStatusController::class, 'update']);
-    Route::post('product-statuses-destroy', [ProductStatusController::class, 'destroy']);
-
     // Rutas para Product
     Route::get('products', [ProductController::class, 'index']);
     Route::post('products', [ProductController::class, 'store']);

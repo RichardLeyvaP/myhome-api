@@ -20,36 +20,6 @@ class CategoryController extends Controller
     {
         Log::info(auth()->user()->name.'-'."Entra a buscar las categorias");
         try {
-            //$categories = Category::all();
-            /*$categories = Category::with('parent', 'children')->get()->map(function ($category) {
-                $translatedAttributes = $category->getTranslatedCategories();
-                return [
-                    'id' => $category->id,
-                    'name' => $translatedAttributes['name'],
-                    'description' => $translatedAttributes['description'],
-                    'color' => $category->color,
-                    'icon' => $category->icon,
-                    'parent_id' => $category->parent_id,
-                    'parent' => $category->parent ? [
-                        'id' => $category->parent->id,
-                        'name' => $category->parent->name,
-                        'description' => $category->parent->description,
-                        'color' => $category->parent->color,
-                        'icon' => $category->parent->icon,
-                        'parent_id' => $category->parent->parent_id,
-                    ] : null,
-                    'children' => $category->children->map(function ($child) use ($translatedAttributes) {
-                        return [
-                            'id' => $child->id,
-                            'name' => $child->name,
-                            'description' => $child->description,
-                            'color' => $child->color,
-                            'icon' => $child->icon,
-                            'parent_id' => $child->parent_id,
-                        ];
-                    }),
-                ];
-            });*/
             $categories = Category::with('parent', 'children')
             ->get()
             ->filter(function ($category) {
@@ -123,7 +93,8 @@ class CategoryController extends Controller
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
-                'color' => 'required|string|size:7',
+                'color' => 'required|string',
+                'type' => 'required|string',
                 'icon' => [
                 'nullable',
                 Rule::when($request->hasFile('icon'), ['file', 'mimes:jpeg,png,jpg,gif', 'max:2048'], 'string')],
@@ -137,6 +108,7 @@ class CategoryController extends Controller
                 'name' => $request->name,
                 'description' => $request->description,
                 'color' => $request->color,
+                'type' => $request->type,
                 'parent_id' => $request->parent_id,
             ]);
 
@@ -224,6 +196,7 @@ class CategoryController extends Controller
                 'name' => 'sometimes|required|string|max:255',
                 'description' => 'nullable|string',
                 'color' => 'sometimes|required|string|size:7',
+                'type' => 'sometimes|required|string',
                 'icon' => [
                 'nullable',
                 Rule::when($request->hasFile('icon'), ['file', 'mimes:jpeg,png,jpg,gif', 'max:2048'], 'string')],
@@ -254,6 +227,7 @@ class CategoryController extends Controller
                 'description' => $request->description,
                 'color' => $request->color,
                 'icon' => $filename,
+                'type' => $request->type,
                 'parent_id' => $request->parent_id,
             ]);
     

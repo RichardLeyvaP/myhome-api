@@ -15,4 +15,12 @@ declare(strict_types=1);
         'name' => 'Manutenção',
         'description' => 'Categoria de Manutenção'
     ],
+    'Alimentos' => [
+        'name' => 'Alimentos',
+        'description' => 'Produtos para cozinhar',
+    ],
+    'Electrónicos' => [
+        'name' => 'Eletrônicos',
+        'description' => 'Produtos para o lar',
+    ],
   ];

@@ -35,7 +35,7 @@ class Product extends Model
      */
     public function category()
     {
-        return $this->belongsTo(ProductCategory::class, 'category_id');
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     /**
@@ -43,6 +43,6 @@ class Product extends Model
      */
     public function status()
     {
-        return $this->belongsTo(ProductStatus::class, 'status_id');
+        return $this->belongsTo(Status::class, 'status_id');
     }
 }

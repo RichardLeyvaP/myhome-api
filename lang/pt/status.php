@@ -15,4 +15,16 @@ declare(strict_types=1);
         'name' => 'Concluído',
         'description' => 'Estado concluído'
     ],
+    'En uso' => [
+        'name' => 'Em uso',
+        'description' => 'Produtos que estão em uso',
+    ],
+    'Consumido' => [
+        'name' => 'Consumido',
+        'description' => 'Produtos que estão sendo consumidos',
+    ],
+    'Agotados' => [
+        'name' => 'Esgotados',
+        'description' => 'Produtos esgotados',
+    ],
   ];
