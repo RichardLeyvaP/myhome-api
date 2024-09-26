@@ -109,6 +109,7 @@ class CategoryController extends Controller
                 'description' => $request->description,
                 'color' => $request->color,
                 'type' => $request->type,
+                'state' => 1,
                 'parent_id' => $request->parent_id,
             ]);
 
@@ -197,6 +198,7 @@ class CategoryController extends Controller
                 'description' => 'nullable|string',
                 'color' => 'sometimes|required|string|size:7',
                 'type' => 'sometimes|required|string',
+                'state' => 'sometimes|required|integer',
                 'icon' => [
                 'nullable',
                 Rule::when($request->hasFile('icon'), ['file', 'mimes:jpeg,png,jpg,gif', 'max:2048'], 'string')],
@@ -228,6 +230,7 @@ class CategoryController extends Controller
                 'color' => $request->color,
                 'icon' => $filename,
                 'type' => $request->type,
+                'state' => $request->state,
                 'parent_id' => $request->parent_id,
             ]);
     

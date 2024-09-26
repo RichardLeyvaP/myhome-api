@@ -16,6 +16,7 @@ class Category extends Model
         'icon',
         'type',
         'parent_id',
+        'state'
     ];
 
       /**
@@ -59,6 +60,11 @@ class Category extends Model
     public function products()
     {
         return $this->hasMany(Product::class);
+    }
+
+    public function people()
+    {
+        return $this->belongsToMany(Person::class, 'category_person', 'category_id', 'person_id');
     }
 
     // Definir un scope para filtrar por tipo
