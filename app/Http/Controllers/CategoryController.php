@@ -39,7 +39,9 @@ class CategoryController extends Controller
                     'children' => $this->mapChildren($category->children),
                 ];
             })->Values();
-            
+            if (!$categories) {
+                return response()->json(['msg' => 'CategoryNotfound'], 204);
+            }
             return response()->json(['categories' => $categories], 200);
         } catch (\Exception $e) {
             Log::info('CategoryController->index');
@@ -210,7 +212,7 @@ class CategoryController extends Controller
             
             $category = Category::find($request->id);
             if (!$category) {
-                return response()->json(['msg' => 'CategoryNotfound'], 404);
+                return response()->json(['msg' => 'CategoryNotfound'], 204);
             }
             $filename = $request->icon;
             if ($request->hasFile('icon'))

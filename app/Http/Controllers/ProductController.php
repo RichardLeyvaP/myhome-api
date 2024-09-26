@@ -42,6 +42,9 @@ class ProductController extends Controller
                     'image' => $query->image,
                 ];
             });
+            if ($products->isEmpty()) {
+                return response()->json(['products' => $products], 204);
+            }
             return response()->json(['products' => $products], 200);
         } catch (\Exception $e) {
             Log::error('ProductController->index: ' . $e->getMessage());
@@ -142,7 +145,7 @@ class ProductController extends Controller
                 ];
             });
             if (!$product) {
-                return response()->json(['msg' => 'ProductNotFound'], 404);
+                return response()->json(['msg' => 'ProductNotFound'], 204);
             }
             return response()->json(['product' => $product], 200);
         } catch (\Exception $e) {

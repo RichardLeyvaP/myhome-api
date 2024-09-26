@@ -47,4 +47,9 @@ class Person extends Model
     {
         return $this->belongsToMany(Role::class, 'home_person', 'person_id', 'role_id');
     }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'category_person', 'person_id', 'category_id')->withTimestamps();
+    }
 }

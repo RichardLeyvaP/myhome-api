@@ -275,7 +275,7 @@ class TaskController extends Controller
             }
             $task = Task::where('id', $request->id)->with('parent', 'children', 'priority', 'status', 'category')->first();
             if (!$task) {
-                return response()->json(['msg' => 'TaskNotfound'], 404);
+                return response()->json(['msg' => 'TaskNotfound'], 204);
             }
 
             $translatedAttributes = $task->priority->getTranslatedAttributes();

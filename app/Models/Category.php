@@ -64,7 +64,7 @@ class Category extends Model
 
     public function people()
     {
-        return $this->belongsToMany(Person::class, 'category_person', 'category_id', 'person_id');
+        return $this->belongsToMany(Person::class, 'category_person', 'category_id', 'person_id')->withTimestamps();
     }
 
     // Definir un scope para filtrar por tipo

@@ -34,6 +34,10 @@ class HomeController extends Controller
                 ];
             });
 
+            if ($homes->isEmpty()) {
+                return response()->json(['homes' => $homes], 204);
+            }
+
             return response()->json(['homes' => $homes], 200);
         } catch (\Exception $e) {
             Log::error('HomeController->index: ' . $e->getMessage());
@@ -108,7 +112,7 @@ class HomeController extends Controller
 
             $home = Home::find($request->id);
             if (!$home) {
-                return response()->json(['msg' => 'HomeNotFound'], 404);
+                return response()->json(['msg' => 'HomeNotFound'], 204);
             }
             $getTranslatedHomeType = $home->homeType->getTranslatedHomeType();
             $getTranslatedHomeStatus = $home->getTranslatedHomeStatus();

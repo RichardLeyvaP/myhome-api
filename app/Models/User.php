@@ -54,6 +54,11 @@ class User extends Authenticatable
         ];
     }
 
+    public function person()
+    {
+        return $this->belongsTo(Person::class);
+    }
+
     /*public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
