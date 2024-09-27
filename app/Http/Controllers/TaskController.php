@@ -542,8 +542,21 @@ class TaskController extends Controller
                     'level' => $priority->level
                 ];
             });
-            
-            return response()->json(['taskcategories' => $categories, 'taskstatus' => $status, 'taskpriorities' => $priorities], 200);
+
+            $persons = Person::with(['homes', 'roles'])->get()->map(function ($person) {
+                $firstHome = $person->homes->first();
+                $role = $firstHome ? $person->roles->where('id', $firstHome->pivot->role_id)->first() : null;
+                            //$gettranslatedRoles = $person->role->getTranslatedRoles();
+                            return [
+                                'id' => $person->id,
+                                'namePerson' => $person->name,
+                                'imagePerson' => $person->image,
+                                'rolId' => $role ? $role->id : null, // Asumiendo que hay un método `name` en Role
+                                'nameRole' => $role ? $role->name : 'Sin Rol', // Asumiendo que hay un método `name` en Role
+                            ];
+                        });
+                        
+            return response()->json(['taskcategories' => $categories, 'taskstatus' => $status, 'taskpriorities' => $priorities, 'taskpeople' => $persons], 200);
         } catch (\Exception $e) {
             Log::info('CategoryController->index');
             Log::info($e->getMessage());

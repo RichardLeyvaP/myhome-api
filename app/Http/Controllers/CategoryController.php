@@ -115,7 +115,7 @@ class CategoryController extends Controller
                 'parent_id' => $request->parent_id,
             ]);
 
-            //$filename = "categories/default_profile.jpg";
+            //$filename = "categories/default.jpg";
             if ($request->hasFile('icon')) {
                 $filename = $request->file('icon')->storeAs('categories', $category->id . '.' . $request->file('icon')->extension(), 'public');
                 $category->icon = $filename;
@@ -216,7 +216,7 @@ class CategoryController extends Controller
             }
             $filename = $request->icon;
             if ($request->hasFile('icon'))
-            if ($category->icon != 'categories/default_profile.jpg') {
+            if ($category->icon != 'categories/default.jpg') {
                 if ($category->icon && Storage::disk('public')->exists($category->icon)) {
                     Storage::disk('public')->delete($category->icon);
                 }
@@ -261,7 +261,7 @@ class CategoryController extends Controller
             if (!$category) {
                 return response()->json(['msg' => 'CategoryNotFound'], 404);
             }
-            if ($category->icon != 'categories/default_profile.jpg') {
+            if ($category->icon != 'categories/default.jpg') {
                 /*$destination = public_path("storage\\" . $category->icon);
                 if (File::exists($destination)) {
                     File::delete($destination);

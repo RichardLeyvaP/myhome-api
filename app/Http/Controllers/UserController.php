@@ -70,7 +70,8 @@ class UserController extends Controller
            Person::create([
                 'user_id' => $user->id,
                 'name' => $request->name,
-                'email' => $request->email
+                'email' => $request->email,
+                'image' => 'people/default.jpg'
             ]);
             DB::commit();
             return response()->json([

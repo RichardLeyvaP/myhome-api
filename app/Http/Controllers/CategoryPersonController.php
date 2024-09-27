@@ -228,7 +228,7 @@ class CategoryPersonController extends Controller
             // Manejo del icono
             $filename = $category->icon; // Asignar valor por defecto
             if ($request->hasFile('icon')) {
-                if ($category->icon != 'categories/default_profile.jpg') {
+                if ($category->icon != 'categories/default.jpg') {
                     if ($category->icon && Storage::disk('public')->exists($category->icon)) {
                         Storage::disk('public')->delete($category->icon);
                     }

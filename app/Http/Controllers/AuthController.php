@@ -155,7 +155,8 @@ class AuthController extends Controller
                     Person::create([
                         'user_id' => $userExits->id,
                         'name' => $userGoogle->name,
-                        'email' => $userGoogle->email
+                        'email' => $userGoogle->email,
+                        'image' => 'people/default.jpg'
                     ]);
                     Auth::login($userExits);
                 }
@@ -220,7 +221,8 @@ class AuthController extends Controller
                     Person::create([
                         'user_id' => $userExits->id,
                         'name' => $userFacebook->name,
-                        'email' => $userFacebook->email
+                        'email' => $userFacebook->email,
+                        'image' => 'people/default.jpg'
                     ]);
                     Auth::login($userExits);
                 }
@@ -298,7 +300,8 @@ class AuthController extends Controller
                     Person::create([
                         'user_id' => $userExits->id,
                         'name' => $userGoogle->name,
-                        'email' => $userGoogle->email
+                        'email' => $userGoogle->email,
+                        'image' => 'people/default.jpg'
                     ]);
                     Auth::login($userExits);
                 }
@@ -377,7 +380,8 @@ class AuthController extends Controller
                     Person::create([
                         'user_id' => $userExits->id,
                         'name' => $userFacebook->name,
-                        'email' => $userFacebook->email
+                        'email' => $userFacebook->email,
+                        'image' => 'people/default.jpg'
                     ]);
                     Auth::login($userExits);
                 }
