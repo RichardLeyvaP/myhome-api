@@ -50,7 +50,7 @@ class PersonController extends Controller
             $validator = Validator::make($request->all(), [
                 'user_id' => 'required|exists:users,id', // Debe existir en la tabla users
                 'name' => 'required|string|max:255',
-                'birth_date' => 'required|date',
+                'birth_date' => 'nullable|required|date',
                 'age' => 'nullable|integer|min:0',
                 'gender' => 'nullable|string|max:10',
                 'email' => 'nullable|string|email|max:255',
