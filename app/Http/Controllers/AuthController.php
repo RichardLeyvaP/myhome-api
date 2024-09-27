@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use App\Http\Resources\UserResource;
+use App\Models\Person;
 use App\Models\User;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -116,12 +118,14 @@ class AuthController extends Controller
     public function googleCallback()
     {
         Log::info('Logueo por cuenta de google');
+        DB::beginTransaction();
         try {
             // Intentar obtener el usuario de Google
             $userGoogle = Socialite::driver('google')->stateless()->user();
 
             // Verificar si $userGoogle es null
             if (!$userGoogle) {
+                DB::commit();
                 return response()->json(['msg' => 'GoogleNotFound',], 400);
             }
 
@@ -148,13 +152,18 @@ class AuthController extends Controller
                         'external_id' => $userGoogle->id,
                         'external_auth' => 'google',
                     ]);
+                    Person::create([
+                        'user_id' => $userExits->id,
+                        'name' => $userGoogle->name,
+                        'email' => $userGoogle->email
+                    ]);
                     Auth::login($userExits);
                 }
             }
 
             // Generar el token usando Sanctum
             $token = $userExits->createToken('auth_token')->plainTextToken;
-
+            DB::commit();
             // Retornar los datos del usuario junto con el token
             return response()->json([
                 'id' => $userExits->id,
@@ -165,7 +174,8 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             // Captura cualquier excepción que pueda ocurrir durante el proceso
             Log::info('AuthController->googleCallback');
-            Log::error($e);
+            Log::error($e->getMessage());
+            DB::rollback();
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -173,12 +183,14 @@ class AuthController extends Controller
     public function facebookCallback()
     {
         Log::info('Logueo por cuenta de facebook');
+        DB::beginTransaction();
         try {
             // Intentar obtener el usuario de Google
             $userFacebook = Socialite::driver('facebook')->stateless()->user();
 
             // Verificar si $userFacebook es null
             if (!$userFacebook) {
+                DB::commit();
                 return response()->json(['msg' => 'FacebookNotFound'], 400);
             }
 
@@ -205,13 +217,18 @@ class AuthController extends Controller
                         'external_id' => $userFacebook->id,
                         'external_auth' => 'google',
                     ]);
+                    Person::create([
+                        'user_id' => $userExits->id,
+                        'name' => $userFacebook->name,
+                        'email' => $userFacebook->email
+                    ]);
                     Auth::login($userExits);
                 }
             }
 
             // Generar el token usando Sanctum
             $token = $userExits->createToken('auth_token')->plainTextToken;
-
+            DB::commit();
             // Retornar los datos del usuario junto con el token
             return response()->json([
                 'id' => $userExits->id,
@@ -223,7 +240,7 @@ class AuthController extends Controller
             // Captura cualquier excepción que pueda ocurrir durante el proceso
             Log::info('AuthController->facebookCallback');
             Log::error($e->getMessage());
-
+            DB::rollback();
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -231,13 +248,14 @@ class AuthController extends Controller
     public function googleCallbackApk(Request $request)
     {
         Log::info('Logueo por cuenta de Google desde APK');
-
+        DB::beginTransaction();
         try {
             // Obtener el token de Google desde la solicitud
             $idToken = $request->input('id_token');
 
             // Verificar si se proporcionó el token
             if (!$idToken) {
+                DB::commit();
                 return response()->json(['error' => 'TokenNoProporcionado'], 400);
             }
 
@@ -246,6 +264,7 @@ class AuthController extends Controller
 
             // Verificar si $userGoogle es null
             if (!$userGoogle) {
+                DB::commit();
                 return response()->json(['msg' => 'GoogleNotFound'], 400);
             }
 
@@ -276,13 +295,18 @@ class AuthController extends Controller
                         'external_id' => $userGoogle->id,
                         'external_auth' => 'google',
                     ]);
+                    Person::create([
+                        'user_id' => $userExits->id,
+                        'name' => $userGoogle->name,
+                        'email' => $userGoogle->email
+                    ]);
                     Auth::login($userExits);
                 }
             }
 
             // Generar el token usando Sanctum
             $token = $userExits->createToken('auth_token')->plainTextToken;
-
+            DB::commit();
             // Retornar los datos del usuario junto con el token
             return response()->json([
                 'id' => $userExits->id,
@@ -293,7 +317,8 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             // Captura cualquier excepción que pueda ocurrir durante el proceso
             Log::info('AuthController->googleCallbackApk');
-            Log::error($e);
+            Log::error($e->getMessage());
+            DB::rollback();
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -308,6 +333,7 @@ class AuthController extends Controller
 
             // Verificar si se proporcionó el token
             if (!$accessToken) {
+                DB::commit();
                 return response()->json(['error' => 'TokenNoProporcionado'], 400);
             }
 
@@ -316,6 +342,7 @@ class AuthController extends Controller
 
             // Verificar si $userFacebook es null
             if (!$userFacebook) {
+                DB::commit();
                 return response()->json(['msg' => 'FacebookNotFound'], 400);
             }
 
@@ -346,13 +373,19 @@ class AuthController extends Controller
                         'external_id' => $userFacebook->id,
                         'external_auth' => 'facebook', // Cambiado de 'google' a 'facebook'
                     ]);
+
+                    Person::create([
+                        'user_id' => $userExits->id,
+                        'name' => $userFacebook->name,
+                        'email' => $userFacebook->email
+                    ]);
                     Auth::login($userExits);
                 }
             }
 
             // Generar el token usando Sanctum
             $token = $userExits->createToken('auth_token')->plainTextToken;
-
+            DB::commit();
             // Retornar los datos del usuario junto con el token
             return response()->json([
                 'id' => $userExits->id,
@@ -364,7 +397,7 @@ class AuthController extends Controller
             // Captura cualquier excepción que pueda ocurrir durante el proceso
             Log::info('AuthController->facebookCallbackApk');
             Log::error($e->getMessage());
-
+            DB::rollback();
             return response()->json(['error' => 'ServerError'], 500);
         }
     }

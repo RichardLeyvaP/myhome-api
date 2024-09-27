@@ -543,7 +543,7 @@ class TaskController extends Controller
                 ];
             });
             
-            return response()->json(['categories' => $categories, 'status' => $status, 'priorities' => $priorities], 200);
+            return response()->json(['taskcategories' => $categories, 'taskstatus' => $status, 'taskpriorities' => $priorities], 200);
         } catch (\Exception $e) {
             Log::info('CategoryController->index');
             Log::info($e->getMessage());

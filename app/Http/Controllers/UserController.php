@@ -7,11 +7,13 @@ use App\Models\User;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
+use App\Models\Person;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -46,6 +48,7 @@ class UserController extends Controller
     public function register(Request $request)
     {
         Log::info("Registrar usuarios");
+        DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
@@ -53,6 +56,7 @@ class UserController extends Controller
                 'email' => 'required|max:50|email|unique:users'
             ]);
             if ($validator->fails()) {
+                DB::commit();
                 return response()->json([
                     'msg' => $validator->errors()->all()
                 ], 400);
@@ -63,13 +67,19 @@ class UserController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password)
             ]);
-
+           Person::create([
+                'user_id' => $user->id,
+                'name' => $request->name,
+                'email' => $request->email
+            ]);
+            DB::commit();
             return response()->json([
                 'msg' => "Client registrado correctamente!!!",
                 'user' => $user
             ], 201);
         } catch (\Throwable $th) {
-            Log::info($th->getMessage());
+            Log::error($th->getMessage());
+            DB::rollback();
             return response()->json(['msg' => $th->getMessage() . 'Error interno del sistema'], 500);
         }
     }
@@ -140,7 +150,7 @@ class UserController extends Controller
         return response()->json(['activities' => $activities], 200);
     } catch (\Exception $e) {
         Log::info('UserController->show');
-        Log::info($e->getMessage());
+        Log::error($e->getMessage());
         return response()->json(['error' => 'ServerError'], 500);
     }
     }

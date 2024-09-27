@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id'); // Clave foránea que apunta a la tabla users
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade'); // Relación con users
             $table->string('name'); // Nombre completo
-            $table->date('birth_date'); // Fecha de nacimiento
+            $table->date('birth_date')->nullable(); // Fecha de nacimiento
             $table->integer('age')->nullable(); // Campo de edad (opcional) para almacenar la edad
             $table->string('gender')->nullable(); // Género
             $table->string('email')->nullable(); // Correo electrónico (opcional)
