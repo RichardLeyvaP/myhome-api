@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Person;
 use App\Models\Priority;
 use App\Models\Status;
 use App\Models\Task;
@@ -112,6 +113,7 @@ class TaskController extends Controller
                         'categoryId' => $task->category_id,
                         'nameCategory' => $translatedCategoy['name'],
                         'iconCategory' => $task->category->icon,
+                        'colorCategory' => $task->category->color,
                         'recurrence' => $task->recurrence,
                         'estimatedTime' => $task->estimated_time,
                         'comments' => $task->comments,
@@ -188,6 +190,7 @@ class TaskController extends Controller
                 'category_id' => $child->category_id,
                 'nameCategory' => $translatedCategoy['name'],
                 'iconCategory' => $child->category->icon,
+                'colorCategory' => $child->category->color,
                 'recurrence' => $child->recurrence,
                 'estimatedTime' => $child->estimated_time,
                 'comments' => $child->comments,
@@ -463,6 +466,39 @@ class TaskController extends Controller
     {
         //Log::info(auth()->user()->name.'-'."Entra a ruta unificada(category_status_priority) buscar las categorias a estados y prioridades");
         try {
+            /*$userId = auth()->user()->id;
+            $person = Person::where('user_id', $userId)->first();
+            if (!$person) {
+                return response()->json(['error' => 'Persona no encontrada'], 404);
+            }
+            $personId = $person->id;
+            // Obtener todas las categorías que estén relacionadas con la persona
+            $categories1 = Category::with('parent', 'children', 'people')->ofType('Task') // Cargar relaciones necesarias
+                ->get()
+                ->filter(function ($category) use ($personId) {
+                    // Filtrar las categorías que están relacionadas con la persona o tienen state = 1
+                    return $category->people->contains('id', $personId) || $category->state == 1;
+                })
+                ->map(function ($category) use ($personId){
+                    if ($category->state == 1) {
+                        $translatedAttributes = $category->getTranslatedCategories();
+                        $name = $translatedAttributes['name'];
+                        $description = $translatedAttributes['description'];
+                    } else {
+                        $name = $category->name;
+                        $description = $category->description;
+                    }
+                    return [
+                        'id' => $category->id,
+                        'name' => $name,
+                        'description' => $description,
+                        'color' => $category->color,
+                        'icon' => $category->icon,
+                        'parent_id' => $category->parent_id,
+                        'children' => $this->mapChildrenCategory1($category->children, $personId),
+                    ];
+                });*/
+
             $categories = Category::with('parent', 'children')->ofType('Task')
             ->get()
             ->filter(function ($category) {
@@ -476,7 +512,7 @@ class TaskController extends Controller
                     'nameCategory' => $translatedCategory['name'],
                     'descriptionCategory' => $translatedCategory['description'],
                     'colorCategory' => $category->color,
-                    'iconCategory' => $category->icon,
+                    'iconCategory' => $category->icon,                    
                     'parent_id' => $category->parent_id,
                     //'parent' => $category->parent ? $this->mapParent($category->parent) : null,
                     'children' => $this->mapChildrenCategory($category->children),
@@ -530,4 +566,34 @@ class TaskController extends Controller
             ];
         });
     }
+
+    /*public function mapChildrenCategory1($children, $personId)
+    {
+        // Filtrar solo los hijos que estén relacionados con la persona o tengan state = 1
+        return $children->filter(function ($child) use ($personId) {
+            // Verificamos si el hijo está relacionado con la persona o tiene state = 1
+            return $child->people->contains('id', $personId) || $child->state == 1;
+        })
+        ->map(function ($child) use ($personId) {
+            if ($child->state == 1) {
+                // Obtener los atributos traducidos si el estado es 1
+                $translatedAttributes = $child->getTranslatedCategories();
+                $name = $translatedAttributes['name'];
+                $description = $translatedAttributes['description'];
+            } else {
+                // Usar los atributos originales si el estado no es 1
+                $name = $child->name;
+                $description = $child->description;
+            }
+            return [
+                'id' => $child->id,
+                'name' => $name,
+                'description' => $description,
+                'color' => $child->color,
+                'icon' => $child->icon,
+                'parent_id' => $child->parent_id,
+                'children' => $this->mapChildren($child->children, $personId), // Recursividad con personId
+            ];
+        });
+    }*/
 }

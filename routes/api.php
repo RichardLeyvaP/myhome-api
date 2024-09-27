@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CategoryPersonController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HomePersonController;
 use App\Http\Controllers\HomeTypeController;
@@ -137,6 +138,13 @@ Route::group( ['middleware' => ["auth:sanctum"]], function(){
     Route::get('home-person-show', [HomePersonController::class, 'show']);
     Route::put('home-person', [HomePersonController::class, 'update']);
     Route::post('home-person-destroy', [HomePersonController::class, 'destroy']);
+
+    // Rutas para Home_Person
+    Route::get('category-person', [CategoryPersonController::class, 'index']);
+    Route::post('category-person', [CategoryPersonController::class, 'store']);
+    Route::get('category-person-show', [CategoryPersonController::class, 'show']);
+    Route::put('category-person', [CategoryPersonController::class, 'update']);
+    Route::post('category-person-destroy', [CategoryPersonController::class, 'destroy']);
 
     //rutas unificadas
     Route::get('productcategory-productstatus-apk', [ProductController::class, 'productcategory_productstatus']);

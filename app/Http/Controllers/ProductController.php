@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Person;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductStatus;
@@ -267,6 +268,37 @@ class ProductController extends Controller
     {
         //Log::info(auth()->user()->name . '-' . "Entra a buscar las categorias y estado de los productos");
         try {
+            /*$userId = auth()->user()->id;
+            $person = Person::where('user_id', $userId)->first();
+            if (!$person) {
+                return response()->json(['error' => 'Persona no encontrada'], 404);
+            }
+            $personId = $person->id;
+            $categories1 = Category::with('parent', 'children', 'people')->ofType('Product') // Cargar relaciones necesarias
+                ->get()
+                ->filter(function ($category) use ($personId) {
+                    // Filtrar las categorías que están relacionadas con la persona o tienen state = 1
+                    return $category->people->contains('id', $personId) || $category->state == 1;
+                })
+                ->map(function ($category) use ($personId){
+                    if ($category->state == 1) {
+                        $translatedAttributes = $category->getTranslatedCategories();
+                        $name = $translatedAttributes['name'];
+                        $description = $translatedAttributes['description'];
+                    } else {
+                        $name = $category->name;
+                        $description = $category->description;
+                    }
+                    return [
+                        'id' => $category->id,
+                        'nameCategory' => $name,
+                        'descriptionCategory' => $description,
+                        'colorCategory' => $category->color,
+                        'iconCategory' => $category->icon,
+                        'parent_id' => $category->parent_id,
+                        'children' => $this->mapChildrenCategory($category->children, $personId),
+                    ];
+                });*/
             $productcategories = Category::ofType('Product')->get()->map(function ($productcategory) {
                 $translated = $productcategory->getTranslatedCategories();
                 return [
@@ -292,5 +324,35 @@ class ProductController extends Controller
             Log::error('ProductController->productcategory_productstatus: ' . $e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
+    }
+
+    public function mapChildrenCategory($children, $personId)
+    {
+        // Filtrar solo los hijos que estén relacionados con la persona o tengan state = 1
+        return $children->filter(function ($child) use ($personId) {
+            // Verificamos si el hijo está relacionado con la persona o tiene state = 1
+            return $child->people->contains('id', $personId) || $child->state == 1;
+        })
+        ->map(function ($child) use ($personId) {
+            if ($child->state == 1) {
+                // Obtener los atributos traducidos si el estado es 1
+                $translatedAttributes = $child->getTranslatedCategories();
+                $name = $translatedAttributes['name'];
+                $description = $translatedAttributes['description'];
+            } else {
+                // Usar los atributos originales si el estado no es 1
+                $name = $child->name;
+                $description = $child->description;
+            }
+            return [
+                'id' => $child->id,
+                'nameCategory' => $name,
+                'descriptionCategory' => $description,
+                'colorCategory' => $child->color,
+                'iconCategory' => $child->icon,
+                'parent_id' => $child->parent_id,
+                'children' => $this->mapChildrenCategory($child->children, $personId), // Recursividad con personId
+            ];
+        });
     }
 }

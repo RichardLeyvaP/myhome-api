@@ -198,7 +198,7 @@ class CategoryController extends Controller
                 'id' => 'required|numeric|exists:categories,id',
                 'name' => 'sometimes|required|string|max:255',
                 'description' => 'nullable|string',
-                'color' => 'sometimes|required|string|size:7',
+                'color' => 'sometimes|required|string',
                 'type' => 'sometimes|required|string',
                 'state' => 'sometimes|required|integer',
                 'icon' => [

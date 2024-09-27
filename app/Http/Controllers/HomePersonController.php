@@ -31,6 +31,10 @@ class HomePersonController extends Controller
                 ];
             });
 
+            if (!$homePersons) {
+                return response()->json(['msg' => 'HomePersonNotFound'], 204);
+            }
+
             return response()->json(['homePersons' => $homePersons], 200);
         } catch (\Exception $e) {
             Log::error('HomePersonController->index: ' . $e->getMessage());
@@ -97,7 +101,7 @@ class HomePersonController extends Controller
 
             $homePerson = HomePerson::with(['home', 'person', 'role'])->find($request->id);
             if (!$homePerson) {
-                return response()->json(['msg' => 'HomePersonNotFound'], 404);
+                return response()->json(['msg' => 'HomePersonNotFound'], 204);
             }
             $gettranslatedRoles = $homePerson->role->getTranslatedRoles();
             return response()->json([
