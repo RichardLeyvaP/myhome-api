@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HomePersonController;
 use App\Http\Controllers\HomeTypeController;
 use App\Http\Controllers\PersonController;
+use App\Http\Controllers\PersonTaskController;
 use App\Http\Controllers\PriorityController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
@@ -43,24 +44,6 @@ Route::get('/facebook-callback-apk', [AuthController::class, 'facebookCallbackAp
 Route::group( ['middleware' => ["auth:sanctum"]], function(){
     //Seleccionar Idioma
     Route::post('/select-language', [UserController::class, 'selectLanguage']);
-    /*Route::post('/select-language', function (Request $request) {
-    $user = Auth::user();
-    $locale = $request->input('locale');
-
-    if (!in_array($locale, ['en', 'es', 'pt'])) {
-        $locale = 'es';
-    }
-    Log::info('Idioma seleccionado');
-    Log::info($locale);
-    // Actualizar el idioma del usuario
-    $user->language = $locale;
-    $user->save();
-
-    App::setLocale($locale);
-    session(['locale' => $locale]);
-
-    return response()->json(['message' => __('Idioma seleccionado correctamente.')]);
-    });*/
     Route::post('logout', [AuthController::class, 'logout']);
     
     //Usuario
@@ -145,6 +128,15 @@ Route::group( ['middleware' => ["auth:sanctum"]], function(){
     Route::get('category-person-show', [CategoryPersonController::class, 'show']);
     Route::put('category-person', [CategoryPersonController::class, 'update']);
     Route::post('category-person-destroy', [CategoryPersonController::class, 'destroy']);
+
+    // Rutas para Person_Task
+    Route::get('person-task', [PersonTaskController::class, 'index']);
+    Route::get('people-task', [PersonTaskController::class, 'getPeopleByTask']);//dada una tarea devolver las personas asociadas
+    Route::post('person-task', [PersonTaskController::class, 'store']);
+    Route::post('people-task', [PersonTaskController::class, 'storePeople']);//Asociar varaias personas a la tarea
+    Route::get('person-task-show', [PersonTaskController::class, 'show']);
+    Route::put('person-task', [PersonTaskController::class, 'update']);
+    Route::post('person-task-destroy', [PersonTaskController::class, 'destroy']);
 
     //rutas unificadas
     Route::get('productcategory-productstatus-apk', [ProductController::class, 'productcategory_productstatus']);

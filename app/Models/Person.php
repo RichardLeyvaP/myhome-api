@@ -35,6 +35,11 @@ class Person extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function getUserName()
+    {
+        return $this->user ? $this->user->name : '';
+    }
+
     public function homes()
     {
         return $this->belongsToMany(Home::class, 'home_person')
@@ -51,5 +56,9 @@ class Person extends Model
     public function categories()
     {
         return $this->belongsToMany(Category::class, 'category_person', 'person_id', 'category_id')->withTimestamps();
+    }
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class, 'person_task', 'person_id', 'task_id')->withTimestamps();;
     }
 }

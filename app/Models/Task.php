@@ -104,4 +104,9 @@ class Task extends Model
     {
         return $query->whereDate('start_date', $startDate);
     }
+
+    public function people()
+    {
+        return $this->belongsToMany(Person::class, 'person_task', 'person_id', 'task_id')->withTimestamps();;
+    }
 }

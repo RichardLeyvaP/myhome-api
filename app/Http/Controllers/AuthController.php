@@ -50,6 +50,7 @@ class AuthController extends Controller
                     'id' => $user->id,
                     'userName' => $user->name,
                     'email' => $user->email,
+                    'language' => $user->language,
                     'token' => $token,
                 ], 200, [], JSON_NUMERIC_CHECK);
             } else {
@@ -90,6 +91,7 @@ class AuthController extends Controller
                     'id' => $user->id,
                     'userName' => $user->name,
                     'email' => $user->email,
+                    'language' => $user->language,
                     'token' => $token,
                 ], 200, [], JSON_NUMERIC_CHECK);
             } else {
@@ -170,6 +172,7 @@ class AuthController extends Controller
                 'id' => $userExits->id,
                 'userName' => $userExits->name,
                 'email' => $userExits->email,
+                'language' => $userExits->language,
                 'token' => $token,
             ], 200, [], JSON_NUMERIC_CHECK);
         } catch (\Exception $e) {
@@ -236,6 +239,7 @@ class AuthController extends Controller
                 'id' => $userExits->id,
                 'userName' => $userExits->name,
                 'email' => $userExits->email,
+                'language' => $userExits->language,
                 'token' => $token,
             ], 200, [], JSON_NUMERIC_CHECK);
         } catch (\Exception $e) {
@@ -315,6 +319,7 @@ class AuthController extends Controller
                 'id' => $userExits->id,
                 'userName' => $userExits->name,
                 'email' => $userExits->email,
+                'language' => $userExits->language,
                 'token' => $token,
             ], 200, [], JSON_NUMERIC_CHECK);
         } catch (\Exception $e) {
@@ -395,6 +400,7 @@ class AuthController extends Controller
                 'id' => $userExits->id,
                 'userName' => $userExits->name,
                 'email' => $userExits->email,
+                'language' => $userExits->language,
                 'token' => $token,
             ], 200, [], JSON_NUMERIC_CHECK);
         } catch (\Exception $e) {

@@ -45,7 +45,7 @@ class TaskController extends Controller
                         'statusId' => $task->status_id,
                         'nameStatus' => $getTranslatedStatus['name'],
                         'categoryId' => $task->category_id,
-                        'nameCategory' => $translatedCategoy['name'],
+                        'nameCategory' => $task->category->state == 0 ? $translatedCategoy['name'] : $task->category->name,
                         'iconCategory' => $task->category->icon,
                         'recurrence' => $task->recurrence,
                         'estimatedTime' => $task->estimated_time,
@@ -71,7 +71,7 @@ class TaskController extends Controller
 
     public function getTaskDate(Request $request)
     {
-        //Log::info(auth()->user()->name.'-'."Entra a buscar las tareas dada una fecha");
+        Log::info(auth()->user()->name.'-'."Entra a buscar las tareas dada una fecha");
         try {
                 // Validación de los datos
                 $validator = Validator::make($request->all(), [
@@ -81,8 +81,19 @@ class TaskController extends Controller
                 if ($validator->fails()) {
                     return response()->json(['msg' => $validator->errors()->all()], 400);
                 }
-                $tasks = Task::with('parent', 'children', 'priority', 'status', 'category')
+
+                // Obtener el ID de la persona asociada al usuario autenticado
+                $personId = auth()->user()->person->id;
+
+                /*$tasks = Task::with('parent', 'children', 'priority', 'status', 'category')
                 ->whereStartDate($request->start_date)
+                ->get();*/
+                // Obtener todas las tareas relacionadas con la fecha y la persona logueada
+                $tasks = Task::with(['parent', 'children', 'priority', 'status', 'category', 'people'])
+                ->whereStartDate($request->start_date)
+                ->whereHas('people', function($query) use ($personId) {
+                    $query->where('people.id', $personId);
+                })
                 ->get();
             
                 // Recolectamos todas las IDs de subtareas
@@ -99,6 +110,16 @@ class TaskController extends Controller
                     $translatedAttributes = $task->priority->getTranslatedAttributes();
                     $translatedCategoy = $task->category->getTranslatedCategories();
                     $getTranslatedStatus = $task->status->getTranslatedStatus();
+
+                            // Mapear las personas asociadas a la tarea
+                    $people = $task->people->map(function ($person) {
+                        return [
+                            'id' => $person->id,
+                            'name' => $person->name,
+                            'image' => $person->image, // Asumiendo que 'image' es el nombre del campo en la base de datos
+                        ];
+                    });
+
                     return [
                         'id' => $task->id,
                         'title' => $task->title,
@@ -111,7 +132,7 @@ class TaskController extends Controller
                         'statusId' => $task->status_id,
                         'nameStatus' => $getTranslatedStatus['name'],
                         'categoryId' => $task->category_id,
-                        'nameCategory' => $translatedCategoy['name'],
+                        'nameCategory' => $task->category->state == 0 ? $translatedCategoy['name'] : $task->category->name,
                         'iconCategory' => $task->category->icon,
                         'colorCategory' => $task->category->color,
                         'recurrence' => $task->recurrence,
@@ -121,6 +142,7 @@ class TaskController extends Controller
                         'geoLocation' => $task->geo_location,
                         'parentId' => $task->parent_id,
                         'children' => $this->mapChildren($task->children),
+                        'people' => $people, // Incluir las personas asocia
                     ];
                 })->values();
                 if ($mappedTasks->isEmpty()) {
@@ -176,6 +198,14 @@ class TaskController extends Controller
             $translatedAttributes = $child->priority->getTranslatedAttributes();
             $translatedCategoy = $child->category->getTranslatedCategories();
             $getTranslatedStatus = $child->status->getTranslatedStatus();
+            // Mapear las personas asociadas a la subtarea (hijo)
+            $people = $child->people->map(function ($person) {
+                return [
+                    'id' => $person->id,
+                    'name' => $person->name,
+                    'image' => $person->image, // Asumiendo que 'image' es el campo correcto
+                ];
+            });
             return [
                 'id' => $child->id,
                 'title' => $child->title,
@@ -199,6 +229,7 @@ class TaskController extends Controller
                 'parentId' => $child->parent_id,
                 //'parent' => $child->parent ? $this->mapParent($child->parent) : null, // Agregar el mapeo del padre
                 'children' => $this->mapChildren($child->children), // Recursión para hijos
+                'people' => $people, // Incluir las personas asociadas a la subtarea
             ];
         });
     }
@@ -207,7 +238,74 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        //Log::info(auth()->user()->name.'-'."Crea una nueva tarea");
+        Log::info(auth()->user()->name . '-' . "Crea una nueva tarea");
+        try {
+            // Definir las reglas de validación
+            $validator = Validator::make($request->all(), [
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'start_date' => 'nullable|date',
+                'end_date' => 'nullable|date|after_or_equal:start_date',
+                'priority_id' => 'required|exists:priorities,id',
+                'parent_id' => 'nullable|exists:tasks,id',
+                'status_id' => 'required|exists:statuses,id',
+                'category_id' => 'required|exists:categories,id',
+                'recurrence' => 'nullable|string|max:255',
+                'estimated_time' => 'nullable|integer|min:0',
+                'comments' => 'nullable|string',
+                'attachments' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048', // max:2048 = 2MB
+                'geo_location' => 'nullable|string|max:255',
+            ]);
+
+            // Si la validación falla, retornar errores
+            if ($validator->fails()) {
+                return response()->json(['msg' => $validator->errors()->all()], 400);
+            }
+
+            // Filtrar solo los campos presentes en la solicitud
+            $taskData = $request->only([
+                'title',
+                'description',
+                'start_date',
+                'end_date',
+                'priority_id',
+                'parent_id',
+                'status_id',
+                'category_id',
+                'recurrence',
+                'estimated_time',
+                'comments',
+                'geo_location'
+            ]);
+
+            // Asignar el valor por defecto para 'attachments'
+            $filename = 'tasks/default.jpg';
+
+            // Manejo de archivos adjuntos
+            if ($request->hasFile('attachments')) {
+                $filename = $request->file('attachments')->storeAs(
+                    'tasks',
+                    uniqid() . '.' . $request->file('attachments')->extension(),
+                    'public'
+                );
+                $taskData['attachments'] = $filename;
+            } else {
+                $taskData['attachments'] = $filename;
+            }
+
+            // Crear la tarea con los datos filtrados
+            $task = Task::create($taskData);
+
+            return response()->json(['msg' => 'TaskStoreOk', 'task' => $task], 201);
+        } catch (\Exception $e) {
+            Log::error('TaskController->store');
+            Log::error($e->getMessage());
+            return response()->json(['error' => 'ServerError'], 500);
+        }
+    }
+    public function store1(Request $request)
+    {
+        Log::info(auth()->user()->name.'-'."Crea una nueva tarea");
         try {
             // Validación de los datos
             $validator = Validator::make($request->all(), [
@@ -464,16 +562,14 @@ class TaskController extends Controller
 
     public function category_status_priority()
     {
-        //Log::info(auth()->user()->name.'-'."Entra a ruta unificada(category_status_priority) buscar las categorias a estados y prioridades");
+        Log::info(auth()->user()->name.'-'."Entra a ruta unificada(category_status_priority) buscar las categorias a estados y prioridades");
         try {
-            /*$userId = auth()->user()->id;
-            $person = Person::where('user_id', $userId)->first();
-            if (!$person) {
+            $personId = auth()->user()->person->id;
+            if (!$personId) {
                 return response()->json(['error' => 'Persona no encontrada'], 404);
             }
-            $personId = $person->id;
             // Obtener todas las categorías que estén relacionadas con la persona
-            $categories1 = Category::with('parent', 'children', 'people')->ofType('Task') // Cargar relaciones necesarias
+            $categories = Category::with('parent', 'children', 'people')->ofType('Task') // Cargar relaciones necesarias
                 ->get()
                 ->filter(function ($category) use ($personId) {
                     // Filtrar las categorías que están relacionadas con la persona o tienen state = 1
@@ -495,11 +591,11 @@ class TaskController extends Controller
                         'color' => $category->color,
                         'icon' => $category->icon,
                         'parent_id' => $category->parent_id,
-                        'children' => $this->mapChildrenCategory1($category->children, $personId),
+                        'children' => $this->mapChildrenCategory($category->children, $personId),
                     ];
-                });*/
+                });
 
-            $categories = Category::with('parent', 'children')->ofType('Task')
+            /*$categories = Category::with('parent', 'children')->ofType('Task')
             ->get()
             ->filter(function ($category) {
                 // Solo mostrar categorías que no tienen padre (categorías principales)
@@ -517,7 +613,7 @@ class TaskController extends Controller
                     //'parent' => $category->parent ? $this->mapParent($category->parent) : null,
                     'children' => $this->mapChildrenCategory($category->children),
                 ];
-            })->Values();
+            })->Values();*/
 
             //Estados
             $status = Status::ofType('Task')->get()->map(function ($state) {
@@ -564,7 +660,7 @@ class TaskController extends Controller
         }
     }
 
-    public function mapChildrenCategory($children)
+    /*public function mapChildrenCategory($children)
     {
         return $children->map(function ($child) {
             $translatedCategory = $child->getTranslatedCategories();
@@ -578,9 +674,9 @@ class TaskController extends Controller
                 'children' => $this->mapChildren($child->children), // Recursión para los hijos de los hijos
             ];
         });
-    }
+    }*/
 
-    /*public function mapChildrenCategory1($children, $personId)
+    public function mapChildrenCategory($children, $personId)
     {
         // Filtrar solo los hijos que estén relacionados con la persona o tengan state = 1
         return $children->filter(function ($child) use ($personId) {
@@ -608,5 +704,5 @@ class TaskController extends Controller
                 'children' => $this->mapChildren($child->children, $personId), // Recursividad con personId
             ];
         });
-    }*/
+    }
 }

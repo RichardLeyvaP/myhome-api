@@ -266,15 +266,13 @@ class ProductController extends Controller
 
     public function productcategory_productstatus()
     {
-        //Log::info(auth()->user()->name . '-' . "Entra a buscar las categorias y estado de los productos");
+        Log::info(auth()->user()->name . '-' . "Entra a buscar las categorias y estado de los productos");
         try {
-            /*$userId = auth()->user()->id;
-            $person = Person::where('user_id', $userId)->first();
-            if (!$person) {
+            $personId = auth()->user()->person->id;
+            if (!$personId) {
                 return response()->json(['error' => 'Persona no encontrada'], 404);
             }
-            $personId = $person->id;
-            $categories1 = Category::with('parent', 'children', 'people')->ofType('Product') // Cargar relaciones necesarias
+            $productcategories = Category::with('parent', 'children', 'people')->ofType('Product') // Cargar relaciones necesarias
                 ->get()
                 ->filter(function ($category) use ($personId) {
                     // Filtrar las categorías que están relacionadas con la persona o tienen state = 1
@@ -298,8 +296,8 @@ class ProductController extends Controller
                         'parent_id' => $category->parent_id,
                         'children' => $this->mapChildrenCategory($category->children, $personId),
                     ];
-                });*/
-            $productcategories = Category::ofType('Product')->get()->map(function ($productcategory) {
+                });
+            /*$productcategories = Category::ofType('Product')->get()->map(function ($productcategory) {
                 $translated = $productcategory->getTranslatedCategories();
                 return [
                     'id' => $productcategory->id,
@@ -308,7 +306,7 @@ class ProductController extends Controller
                     'colorCategory' => $productcategory->color,
                     'iconCategory' => $productcategory->icon,
                 ];
-            });
+            });*/
 
             $productstatus = Status::ofType('Product')->get()->map(function ($productstate) {
                 $translated = $productstate->getTranslatedStatus();
