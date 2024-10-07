@@ -38,15 +38,40 @@ class ConfigurationController extends Controller
             $user = auth()->user();
 
             // Intentar encontrar la configuración del usuario
-            $userConfig = Configuration::where('user_id', $user->id)->first();
+            $config = Configuration::where('user_id', $user->id)->first();
 
             // Si no existe, obtener la configuración por defecto del sistema
-            if (!$userConfig) {
-                $defaultConfig = Configuration::where('isDefault', true)->first();
-                return response()->json(['configuration' => $defaultConfig], 200);
+            if (!$config) {
+                $config = Configuration::where('isDefault', true)->first();
             }
 
-            return response()->json(['configuration' => $userConfig], 200);
+            $userConfig []= [
+                'userId' => $user->id,
+                'appName' => $config->appName,
+                'appVersion' => $config->appVersion,
+                'language' => $config->language,
+                'defaultCurrency' => $config->defaultCurrency,
+                'themeColor' => $config->themeColor,
+                'backgroundColor' => $config->backgroundColor,
+                'textColor' => $config->textColor,
+                'buttonColor' => $config->buttonColor,
+                'isDarkModeEnabled' => (bool)$config->isDarkModeEnabled,
+                'notificationsEnabled' => (bool)$config->notificationsEnabled,
+                'apiEndpoint' => $config->apiEndpoint,
+                'connectionTimeout' => $config->connectionTimeout,
+                'retryAttempts' => $config->retryAttempts,
+                'useBiometricAuth' => (bool)$config->useBiometricAuth,
+                'requirePinForSensitiveActions' => (bool)$config->requirePinForSensitiveActions,
+                'storagePath' => $config->storagePath,
+                'maxCacheSize' => $config->maxCacheSize,
+                'autoUpdateEnabled' => (bool)$config->autoUpdateEnabled,
+                'supportContactEmail' => $config->supportContactEmail,
+                'lastSyncTime' => $config->lastSyncTime, // Formato ISO 8601
+                'fontSize' => $config->fontSize,
+            ];
+
+
+            return response()->json(['configurations' => $userConfig], 200);
         } catch (\Exception $e) {
             Log::error('ConfigurationkController->Show: ' . $e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);

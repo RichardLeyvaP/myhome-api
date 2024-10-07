@@ -85,9 +85,6 @@ class TaskController extends Controller
                 // Obtener el ID de la persona asociada al usuario autenticado
                 $personId = auth()->user()->person->id;
 
-                /*$tasks = Task::with('parent', 'children', 'priority', 'status', 'category')
-                ->whereStartDate($request->start_date)
-                ->get();*/
                 // Obtener todas las tareas relacionadas con la fecha y la persona logueada
                 $tasks = Task::with(['parent', 'children', 'priority', 'status', 'category', 'people'])
                 ->whereStartDate($request->start_date)
@@ -157,7 +154,7 @@ class TaskController extends Controller
         }
     }
 
-        /**
+    /**
      * Función para mapear el padre de una tarea (si existe).
      */
     public function mapParent($parent)
@@ -492,8 +489,6 @@ class TaskController extends Controller
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
-
-
     /**
      * Remove the specified resource from storage.
      */
@@ -594,70 +589,102 @@ class TaskController extends Controller
                         'children' => $this->mapChildrenCategory($category->children, $personId),
                     ];
                 });
+                //Obtener los estados
+                $status = $this->getStatus();
 
-            /*$categories = Category::with('parent', 'children')->ofType('Task')
-            ->get()
-            ->filter(function ($category) {
-                // Solo mostrar categorías que no tienen padre (categorías principales)
-                return $category->parent_id === null;
-            })
-            ->map(function ($category) {
-                $translatedCategory = $category->getTranslatedCategories();
-                return [
-                    'id' => $category->id,
-                    'nameCategory' => $translatedCategory['name'],
-                    'descriptionCategory' => $translatedCategory['description'],
-                    'colorCategory' => $category->color,
-                    'iconCategory' => $category->icon,                    
-                    'parent_id' => $category->parent_id,
-                    //'parent' => $category->parent ? $this->mapParent($category->parent) : null,
-                    'children' => $this->mapChildrenCategory($category->children),
-                ];
-            })->Values();*/
+                //Obtener las prioridades
+                $priorities = $this->getPriorities();
+            
+                $persons = $this->getPeople();
 
-            //Estados
-            $status = Status::ofType('Task')->get()->map(function ($state) {
-                $getTranslatedStatus = $state->getTranslatedStatus();
-                return [
-                    'id' => $state->id,
-                    'nameStatus' => $getTranslatedStatus['name'],
-                    'descriptionStatus' => $getTranslatedStatus['description'],
-                    'colorStatus' => $state->color,
-                    'iconStatus' => $state->icon
-                ];
-            });
-
-            //prioridades
-            $priorities = Priority::all()->map(function ($priority) {
-                $translatedAttributes = $priority->getTranslatedAttributes();
-                return [
-                    'id' => $priority->id,
-                    'namePriority' => $translatedAttributes['name'],
-                    'descriptionPriority' => $translatedAttributes['description'],
-                    'colorPriority' => $priority->color,
-                    'level' => $priority->level
-                ];
-            });
-
-            $persons = Person::with(['homes', 'roles'])->get()->map(function ($person) {
-                $firstHome = $person->homes->first();
-                $role = $firstHome ? $person->roles->where('id', $firstHome->pivot->role_id)->first() : null;
-                            //$gettranslatedRoles = $person->role->getTranslatedRoles();
-                            return [
-                                'id' => $person->id,
-                                'namePerson' => $person->name,
-                                'imagePerson' => $person->image,
-                                'rolId' => $role ? $role->id : null, // Asumiendo que hay un método `name` en Role
-                                'nameRole' => $role ? $role->name : 'Sin Rol', // Asumiendo que hay un método `name` en Role
-                            ];
-                        });
+                $recurrence = $this->getRecurrence();
                         
-            return response()->json(['taskcategories' => $categories, 'taskstatus' => $status, 'taskpriorities' => $priorities, 'taskpeople' => $persons], 200);
+            return response()->json(['taskcategories' => $categories, 'taskstatus' => $status, 'taskpriorities' => $priorities, 'taskpeople' => $persons, 'taskrecurrences' => $recurrence], 200);
         } catch (\Exception $e) {
             Log::info('CategoryController->index');
             Log::info($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
+    }
+
+    private function getStatus()
+    {
+        Log::info('Entra a Buscar los estados en (category_status_priority)');
+        //Estados
+        return Status::ofType('Task')->get()->map(function ($state) {
+            $getTranslatedStatus = $state->getTranslatedStatus();
+            return [
+                'id' => $state->id,
+                'nameStatus' => $getTranslatedStatus['name'],
+                'descriptionStatus' => $getTranslatedStatus['description'],
+                'colorStatus' => $state->color,
+                'iconStatus' => $state->icon
+            ];
+        });
+
+    }
+
+    private function getPriorities()
+    {
+        Log::info('Entra a Buscar Las prioridades en (category_status_priority)');
+        return Priority::all()->map(function ($priority) {
+            $translatedAttributes = $priority->getTranslatedAttributes();
+            return [
+                'id' => $priority->id,
+                'namePriority' => $translatedAttributes['name'],
+                'descriptionPriority' => $translatedAttributes['description'],
+                'colorPriority' => $priority->color,
+                'level' => $priority->level
+            ];
+        });
+
+    }
+
+    private function getPeople(){
+        Log::info('Entra a Buscar Las personas asociadas al hogar (category_status_priority)');
+        return Person::with(['homes', 'roles'])->get()->map(function ($person) {
+            $firstHome = $person->homes->first();
+            $role = $firstHome ? $person->roles->where('id', $firstHome->pivot->role_id)->first() : null;
+                        //$gettranslatedRoles = $person->role->getTranslatedRoles();
+                        return [
+                            'id' => $person->id,
+                            'namePerson' => $person->name,
+                            'imagePerson' => $person->image,
+                            'rolId' => $role ? $role->id : null, // Asumiendo que hay un método `name` en Role
+                            'nameRole' => $role ? $role->name : 'Sin Rol', // Asumiendo que hay un método `name` en Role
+                        ];
+                    });
+    }
+
+    private function getRecurrence()
+    {
+        // Definir el array de recurrencias
+        $recurrenceData = [
+            'Diaria',
+            'Semanal',
+            'Mensual',
+            'Anual',
+        ];
+
+        $result = []; // Inicializar el array de resultados
+
+       // Recorrer las recurrencias
+        foreach ($recurrenceData as $recurrence) {
+            $translatedRecurrence = $this->getTranslatedRecurrence($recurrence);
+            // Agregar la traducción al array resultante, pero como un valor plano
+            $result[] = $translatedRecurrence['recurrence'];
+        }
+
+        return $result;
+    }
+
+    private function getTranslatedRecurrence($recurrence)
+    {
+        $translations = __('recurrence.' . $recurrence);
+
+        return [
+            'recurrence' => $translations['name'] ?? $recurrence
+        ];
     }
 
     /*public function mapChildrenCategory($children)
