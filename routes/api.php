@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CategoryPersonController;
+use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HomePersonController;
 use App\Http\Controllers\HomeTypeController;
@@ -137,6 +138,10 @@ Route::group( ['middleware' => ["auth:sanctum"]], function(){
     Route::get('person-task-show', [PersonTaskController::class, 'show']);
     Route::put('person-task', [PersonTaskController::class, 'update']);
     Route::post('person-task-destroy', [PersonTaskController::class, 'destroy']);
+
+    //Rutas de Configuración
+    Route::get('configuration-show', [ConfigurationController::class, 'show']);
+    Route::put('configuration', [ConfigurationController::class, 'update']);
 
     //rutas unificadas
     Route::get('productcategory-productstatus-apk', [ProductController::class, 'productcategory_productstatus']);

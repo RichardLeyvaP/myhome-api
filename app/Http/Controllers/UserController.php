@@ -149,10 +149,10 @@ class UserController extends Controller
         ->get();
 
         return response()->json(['activities' => $activities], 200);
-    } catch (\Exception $e) {
-        Log::info('UserController->show');
-        Log::error($e->getMessage());
-        return response()->json(['error' => 'ServerError'], 500);
-    }
+        } catch (\Exception $e) {
+            Log::info('UserController->show');
+            Log::error($e->getMessage());
+            return response()->json(['error' => 'ServerError'], 500);
+        }
     }
 }

@@ -59,6 +59,11 @@ class User extends Authenticatable
         return $this->hasOne(Person::class);
     }
 
+    public function configurations()
+    {
+        return $this->hasMany(Configuration::class);
+    }
+
     /*public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

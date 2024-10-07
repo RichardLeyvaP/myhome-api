@@ -586,10 +586,10 @@ class TaskController extends Controller
                     }
                     return [
                         'id' => $category->id,
-                        'name' => $name,
-                        'description' => $description,
-                        'color' => $category->color,
-                        'icon' => $category->icon,
+                        'nameCategory' => $name,
+                        'descriptionCategory' => $description,
+                        'colorCategory' => $category->color,
+                        'iconCategory' => $category->icon,
                         'parent_id' => $category->parent_id,
                         'children' => $this->mapChildrenCategory($category->children, $personId),
                     ];
