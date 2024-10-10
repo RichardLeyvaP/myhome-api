@@ -15,4 +15,8 @@ declare(strict_types=1);
           'name' => 'Alta',
           'description' => 'Prioridad alta'
       ],
+      'Normal' => [
+          'name' => 'Normal',
+          'description' => 'Prioridad normal'
+      ],
   ];

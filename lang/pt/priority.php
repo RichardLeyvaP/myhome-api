@@ -12,4 +12,8 @@
           'name' => 'Alta',
           'description' => 'Prioridade alta'
       ],
+      'Normal' => [
+         'name' => 'Normal',
+         'description' => 'Prioridade normal',
+    ],
   ];

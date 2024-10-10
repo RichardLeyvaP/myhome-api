@@ -64,7 +64,7 @@ class TaskController extends Controller
             return response()->json(['tasks' => $tasks], 200);
         } catch (\Exception $e) {
             Log::info('TaskController->index');
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -149,7 +149,7 @@ class TaskController extends Controller
             return response()->json(['tasks' => $mappedTasks], 200);
         } catch (\Exception $e) {
             Log::info('TaskController->getTaskDate');
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -252,6 +252,8 @@ class TaskController extends Controller
                 'comments' => 'nullable|string',
                 'attachments' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048', // max:2048 = 2MB
                 'geo_location' => 'nullable|string|max:255',
+                'person_id' => 'nullable|array', // Validación para un array de personas
+                'person_id.*' => 'exists:people,id', // Validación para cada ID de persona
             ]);
 
             // Si la validación falla, retornar errores
@@ -292,6 +294,11 @@ class TaskController extends Controller
 
             // Crear la tarea con los datos filtrados
             $task = Task::create($taskData);
+
+            // Asociar personas si el array 'person_id' está presente
+            if ($request->has('person_id')) {
+                $task->people()->attach($request->person_id); // Asocia todas las personas en una sola operación
+            }
 
             return response()->json(['msg' => 'TaskStoreOk', 'task' => $task], 201);
         } catch (\Exception $e) {
@@ -353,7 +360,7 @@ class TaskController extends Controller
             return response()->json(['msg' => 'TaskStoreOk', 'task' => $task], 201);
         } catch (\Exception $e) {
             Log::info('TaskController->store');
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -404,7 +411,7 @@ class TaskController extends Controller
             return response()->json(['task' => $taskData], 200);
         } catch (\Exception $e) {
             Log::info('TaskController->show');
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -520,7 +527,7 @@ class TaskController extends Controller
             return response()->json(['msg' => 'TaskDeleteOk'], 200);
         } catch (\Exception $e) {
             Log::info('TaskController->destroy');
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -550,7 +557,7 @@ class TaskController extends Controller
             return response()->json(['activities' => $activities], 200);
         } catch (\Exception $e) {
             Log::info('TaskController->getTaskHistory');
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -602,7 +609,7 @@ class TaskController extends Controller
             return response()->json(['taskcategories' => $categories, 'taskstatus' => $status, 'taskpriorities' => $priorities, 'taskpeople' => $persons, 'taskrecurrences' => $recurrence], 200);
         } catch (\Exception $e) {
             Log::info('CategoryController->index');
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -658,6 +665,7 @@ class TaskController extends Controller
 
     private function getRecurrence()
     {
+        Log::info('Entra a traducir la recurrencia (category_status_priority)');
         // Definir el array de recurrencias
         $recurrenceData = [
             'Diaria',
