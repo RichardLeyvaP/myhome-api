@@ -8,6 +8,7 @@ use App\Models\Priority;
 use App\Models\Status;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -236,6 +237,7 @@ class TaskController extends Controller
     public function store(Request $request)
     {
         Log::info(auth()->user()->name . '-' . "Crea una nueva tarea");
+        DB::beginTransaction();
         try {
             // Definir las reglas de validación
             $validator = Validator::make($request->all(), [
@@ -255,12 +257,10 @@ class TaskController extends Controller
                 'person_id' => 'nullable|array', // Validación para un array de personas
                 'person_id.*' => 'exists:people,id', // Validación para cada ID de persona
             ]);
-
             // Si la validación falla, retornar errores
             if ($validator->fails()) {
                 return response()->json(['msg' => $validator->errors()->all()], 400);
             }
-
             // Filtrar solo los campos presentes en la solicitud
             $taskData = $request->only([
                 'title',
@@ -297,13 +297,16 @@ class TaskController extends Controller
 
             // Asociar personas si el array 'person_id' está presente
             if ($request->has('person_id')) {
-                $task->people()->attach($request->person_id); // Asocia todas las personas en una sola operación
+                $personIds = array_map('intval', $request->person_id);
+                $task->people()->attach($personIds);
+                //$task->people()->attach($request->person_id); // Asocia todas las personas en una sola operación
             }
-
+            DB::commit();
             return response()->json(['msg' => 'TaskStoreOk', 'task' => $task], 201);
         } catch (\Exception $e) {
             Log::error('TaskController->store');
             Log::error($e->getMessage());
+            DB::rollback();
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
