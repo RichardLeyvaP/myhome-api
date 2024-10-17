@@ -23,4 +23,24 @@ declare(strict_types=1);
         'name' => 'Eletrônicos',
         'description' => 'Produtos para o lar',
     ],
+    'Pintura' => [
+        'name' => 'Pintura',
+        'description' => 'Pintando a casa',
+    ],
+    'Cumpleaños' => [
+        'name' => 'Aniversário',
+        'description' => 'Festa de Aniversário',
+    ],
+    'Mercado' => [
+        'name' => 'Mercado',
+        'description' => 'Compras de mercado',
+    ],
+    'Limpiar la Casa' => [
+        'name' => 'Limpar a Casa',
+        'description' => 'Limpar quartos, cozinha, sala',
+    ],
+    'Lavandería' => [
+        'name' => 'Lavanderia',
+        'description' => 'Lavando roupas',
+    ],
   ];

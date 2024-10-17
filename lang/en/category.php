@@ -23,4 +23,24 @@ return [
         'name' => 'Electronics',
         'description' => 'Products for the home',
     ],
+    'Pintura' => [
+        'name' => 'Painting',
+        'description' => 'Painting the home',
+    ],
+    'Cumpleaños' => [
+        'name' => 'Birthday',
+        'description' => 'Birthday party',
+    ],
+    'Mercado' => [
+        'name' => 'Market',
+        'description' => 'Grocery shopping',
+    ],
+    'Limpiar la Casa' => [
+        'name' => 'Clean the House',
+        'description' => 'Clean bedrooms, kitchen, living room',
+    ],
+    'Lavandería' => [
+        'name' => 'Laundry',
+        'description' => 'Washing clothes',
+    ],
 ];
