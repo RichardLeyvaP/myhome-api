@@ -61,7 +61,7 @@ class HomeController extends Controller
                 'residents' => 'nullable|integer',
                 'geo_location' => 'nullable|string|max:255',
                 'timezone' => 'nullable|string|max:255',
-                'c' => 'nullable|string|max:50',
+                'status' => 'nullable|string|max:50',
                 'image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048', // max:2048 = 2MB
             ]);
 
