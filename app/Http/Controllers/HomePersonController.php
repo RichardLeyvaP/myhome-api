@@ -37,7 +37,8 @@ class HomePersonController extends Controller
 
             return response()->json(['homePersons' => $homePersons], 200);
         } catch (\Exception $e) {
-            Log::error('HomePersonController->index: ' . $e->getMessage());
+            Log::info('HomePersonController->index');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -80,7 +81,8 @@ class HomePersonController extends Controller
                 return response()->json(['homePerson' => $existingRelation], 200);
             }
         } catch (\Exception $e) {
-            Log::error('HomeController->store: ' . $e->getMessage());
+            Log::info('HomeController->store');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -114,7 +116,8 @@ class HomePersonController extends Controller
                 'role' => $gettranslatedRoles['name'],
             ], 200);
         } catch (\Exception $e) {
-            Log::error('HomePersonController->show: ' . $e->getMessage());
+            Log::info('HomePersonController->show');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -169,7 +172,8 @@ class HomePersonController extends Controller
                 return response()->json(['msg' => 'HomePersonUpdated', 'homePerson' => $homePerson], 200);
             }
         } catch (\Exception $e) {
-            Log::error('HomePersonController->update: ' . $e->getMessage());
+            Log::info('HomePersonController->update');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -199,7 +203,8 @@ class HomePersonController extends Controller
 
             return response()->json(['msg' => 'HomePersonDeleted'], 200);
         } catch (\Exception $e) {
-            Log::error('HomePersonController->destroy: ' . $e->getMessage());
+            Log::info('HomePersonController->destroy');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }

@@ -40,7 +40,8 @@ class UserController extends Controller
             Log::info("Entra a buscar los usuarios");
             return response()->json(['users' => User::all()], 200);
         } catch (\Throwable $th) {
-            Log::info($th->getMessage());
+            Log::info('UserController->index');
+            Log::error($th->getMessage());
             return response()->json(['msg' => "Error interno del sistema"], 500);
         }
     }
@@ -79,6 +80,7 @@ class UserController extends Controller
                 'user' => $user
             ], 201);
         } catch (\Throwable $th) {
+            Log::info('UserController->register');
             Log::error($th->getMessage());
             DB::rollback();
             return response()->json(['msg' => $th->getMessage() . 'Error interno del sistema'], 500);
@@ -87,46 +89,33 @@ class UserController extends Controller
 
     public function selectLanguage(Request $request)
     {
-        $modelUser = Auth::user();      
+        try {
+            $modelUser = Auth::user();      
 
-        $user = User::find($modelUser->id);
-        $locale = $request->input('locale');
-
-        if (!in_array($locale, ['en', 'es', 'pt'])) {
-            $locale = 'es';
+            $user = User::find($modelUser->id);
+            $locale = $request->input('locale');
+    
+            if (!in_array($locale, ['en', 'es', 'pt'])) {
+                $locale = 'es';
+            }
+            
+    
+            Log::info('Idioma seleccionado');
+            Log::info($locale);
+            $user->language = $locale;
+    
+                    App::setLocale($locale);
+                    session(['locale' => $locale]);    
+                    
+            $user->save();
+    
+            return response()->json(['message' => __('Idioma seleccionado correctamente.')], 200);
+        } catch (\Throwable $e) {
+            Log::info('UserController->selectLanguage');
+            Log::error($e->getMessage());
+            return response()->json(['error' => 'ServerError'], 500);
         }
         
-
-        Log::info('Idioma seleccionado');
-        Log::info($locale);
-
-
-        // Guardar los valores originales antes de hacer cambios
-        //$originalValues = $user->getOriginal();
-
-        // Actualizar el idioma del usuario
-        $user->language = $locale;
-
-        // Obtener solo los valores que han cambiado
-        //$changes = $user->getDirty();
-
-         // Registrar la actividad
-            /*activity()
-            ->performedOn($user)
-            ->causedBy(auth()->user())
-            ->withProperties([
-                'old_values' => Arr::only($originalValues, array_keys($changes)),
-                'new_values' => $changes,
-            ])
-            ->log('Este modelo fue selectLanguage');*/
-
-                App::setLocale($locale);
-                session(['locale' => $locale]);
-
-                
-        $user->save();
-
-        return response()->json(['message' => __('Idioma seleccionado correctamente.')]);
     }
 
     public function getUserLanguageChanges(Request $request)

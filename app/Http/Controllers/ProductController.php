@@ -48,7 +48,8 @@ class ProductController extends Controller
             }
             return response()->json(['products' => $products], 200);
         } catch (\Exception $e) {
-            Log::error('ProductController->index: ' . $e->getMessage());
+            Log::info('ProductController->index');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -105,7 +106,7 @@ class ProductController extends Controller
             return response()->json(['msg' => 'ProductStoreOk', 'product' => $product], 201);
         } catch (\Exception $e) {
             Log::info('ProductController->store');
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -150,7 +151,8 @@ class ProductController extends Controller
             }
             return response()->json(['product' => $product], 200);
         } catch (\Exception $e) {
-            Log::error('ProductController->show: ' . $e->getMessage());
+            Log::info('ProductController->show');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -221,7 +223,7 @@ class ProductController extends Controller
 
             return response()->json(['msg' => 'ProductUpdateOk', 'product' => $product], 200);
         } catch (\Exception $e) {
-            Log::error('ProductController->update');
+            Log::info('ProductController->update');
             Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
@@ -259,7 +261,7 @@ class ProductController extends Controller
             return response()->json(['msg' => 'ProductDeleteOk'], 200);
         } catch (\Exception $e) {
             Log::info('ProductController->destroy');
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -319,14 +321,16 @@ class ProductController extends Controller
             });
             return response()->json(['productcategories' => $productcategories, 'productstatus' => $productstatus], 200);
         } catch (\Exception $e) {
-            Log::error('ProductController->productcategory_productstatus: ' . $e->getMessage());
+            Log::info('ProductController->productcategory_productstatus');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
 
     public function mapChildrenCategory($children, $personId)
     {
-        // Filtrar solo los hijos que estén relacionados con la persona o tengan state = 1
+        try {
+            // Filtrar solo los hijos que estén relacionados con la persona o tengan state = 1
         return $children->filter(function ($child) use ($personId) {
             // Verificamos si el hijo está relacionado con la persona o tiene state = 1
             return $child->people->contains('id', $personId) || $child->state == 1;
@@ -352,5 +356,10 @@ class ProductController extends Controller
                 'children' => $this->mapChildrenCategory($child->children, $personId), // Recursividad con personId
             ];
         });
+        } catch (\Throwable $e) {
+            Log::info('ProductController->mapChildrenCategory');
+            Log::error($e->getMessage());
+        }
+        
     }
 }

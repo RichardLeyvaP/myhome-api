@@ -29,7 +29,8 @@ class PersonTaskController extends Controller
 
             return response()->json(['tasks' => $tasks], 200);
         } catch (\Exception $e) {
-            Log::error('PersonTaskController->index: '.$e->getMessage());
+            Log::info('PersonTaskController->index');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -58,7 +59,8 @@ class PersonTaskController extends Controller
 
             return response()->json(['people' => $people], 200);
         } catch (\Exception $e) {
-            Log::error('PersonTaskController->getPeopleByTask: '.$e->getMessage());
+            Log::info('PersonTaskController->getPeopleByTask');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -88,7 +90,8 @@ class PersonTaskController extends Controller
 
             return response()->json(['msg' => 'PersonTaskStoreOk'], 201);
         } catch (\Exception $e) {
-            Log::error('PersonTaskController->store: '.$e->getMessage());
+            Log::info('PersonTaskController->store');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -152,7 +155,8 @@ class PersonTaskController extends Controller
 
             return response()->json(['msg' => 'PersonTaskStoreOk'], 201);
         } catch (\Exception $e) {
-            Log::error('PersonTaskController->store: '.$e->getMessage());
+            Log::info('PersonTaskController->store');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -186,7 +190,8 @@ class PersonTaskController extends Controller
 
             return response()->json(['msg' => 'PersonTaskUpdateOk'], 200);
         } catch (\Exception $e) {
-            Log::error('PersonTaskController->update: '.$e->getMessage());
+            Log::info('PersonTaskController->update');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -221,7 +226,8 @@ class PersonTaskController extends Controller
 
             return response()->json(['msg' => 'PersonTaskDeleted'], 200);
         } catch (\Exception $e) {
-            Log::error('PersonTaskController->destroy: '.$e->getMessage());
+            Log::info('PersonTaskController->destroy');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }

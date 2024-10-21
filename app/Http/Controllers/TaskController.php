@@ -160,7 +160,8 @@ class TaskController extends Controller
      */
     public function mapParent($parent)
     {
-        $translatedAttributes = $parent->priority->getTranslatedAttributes();
+        try {
+            $translatedAttributes = $parent->priority->getTranslatedAttributes();
         $translatedCategoy = $parent->category->getTranslatedCategories();
         $getTranslatedStatus = $parent->status->getTranslatedStatus();
         return [
@@ -185,6 +186,10 @@ class TaskController extends Controller
             'parent_id' => $parent->parent_id,
             //'parent' => $parent->parent ? $this->mapParent($parent->parent) : null, // Recursión para mapear ancestros
         ];
+        } catch (\Exception $e) {
+            Log::info('TaskController->mapParent');
+            Log::error($e->getMessage());
+        }
     }
 
     /**
@@ -192,44 +197,50 @@ class TaskController extends Controller
      */
     public function mapChildren($children)
     {
-        return $children->map(function ($child) {
-            $translatedAttributes = $child->priority->getTranslatedAttributes();
-            $translatedCategoy = $child->category->getTranslatedCategories();
-            $getTranslatedStatus = $child->status->getTranslatedStatus();
-            // Mapear las personas asociadas a la subtarea (hijo)
-            $people = $child->people->map(function ($person) {
+        try {
+            return $children->map(function ($child) {
+                $translatedAttributes = $child->priority->getTranslatedAttributes();
+                $translatedCategoy = $child->category->getTranslatedCategories();
+                $getTranslatedStatus = $child->status->getTranslatedStatus();
+                // Mapear las personas asociadas a la subtarea (hijo)
+                $people = $child->people->map(function ($person) {
+                    return [
+                        'id' => $person->id,
+                        'name' => $person->name,
+                        'image' => $person->image, // Asumiendo que 'image' es el campo correcto
+                    ];
+                });
                 return [
-                    'id' => $person->id,
-                    'name' => $person->name,
-                    'image' => $person->image, // Asumiendo que 'image' es el campo correcto
+                    'id' => $child->id,
+                    'title' => $child->title,
+                    'description' => $child->description,
+                    'startDate' => $child->start_date,
+                    'endDate' => $child->end_date,
+                    'priority_id' => $child->priority_id,
+                    'colorPriority' => $child->priority->color,
+                    'namePriority' => $translatedAttributes['name'],
+                    'status_id' => $child->status_id,
+                    'nameStatus' => $getTranslatedStatus['name'],
+                    'category_id' => $child->category_id,
+                    'nameCategory' => $translatedCategoy['name'],
+                    'iconCategory' => $child->category->icon,
+                    'colorCategory' => $child->category->color,
+                    'recurrence' => $child->recurrence,
+                    'estimatedTime' => $child->estimated_time,
+                    'comments' => $child->comments,
+                    'attachments' => $child->attachments,
+                    'geoLocation' => $child->geo_location,
+                    'parentId' => $child->parent_id,
+                    //'parent' => $child->parent ? $this->mapParent($child->parent) : null, // Agregar el mapeo del padre
+                    'children' => $this->mapChildren($child->children), // Recursión para hijos
+                    'people' => $people, // Incluir las personas asociadas a la subtarea
                 ];
             });
-            return [
-                'id' => $child->id,
-                'title' => $child->title,
-                'description' => $child->description,
-                'startDate' => $child->start_date,
-                'endDate' => $child->end_date,
-                'priority_id' => $child->priority_id,
-                'colorPriority' => $child->priority->color,
-                'namePriority' => $translatedAttributes['name'],
-                'status_id' => $child->status_id,
-                'nameStatus' => $getTranslatedStatus['name'],
-                'category_id' => $child->category_id,
-                'nameCategory' => $translatedCategoy['name'],
-                'iconCategory' => $child->category->icon,
-                'colorCategory' => $child->category->color,
-                'recurrence' => $child->recurrence,
-                'estimatedTime' => $child->estimated_time,
-                'comments' => $child->comments,
-                'attachments' => $child->attachments,
-                'geoLocation' => $child->geo_location,
-                'parentId' => $child->parent_id,
-                //'parent' => $child->parent ? $this->mapParent($child->parent) : null, // Agregar el mapeo del padre
-                'children' => $this->mapChildren($child->children), // Recursión para hijos
-                'people' => $people, // Incluir las personas asociadas a la subtarea
-            ];
-        });
+        } catch (\Exception $e) {
+            Log::info('TaskController->mapChildren');
+            Log::error($e->getMessage());
+        }
+        
     }
     /**
      * Store a newly created resource in storage.
@@ -611,7 +622,7 @@ class TaskController extends Controller
                         
             return response()->json(['taskcategories' => $categories, 'taskstatus' => $status, 'taskpriorities' => $priorities, 'taskpeople' => $persons, 'taskrecurrences' => $recurrence], 200);
         } catch (\Exception $e) {
-            Log::info('CategoryController->index');
+            Log::info('CategoryController->category_status_priority');
             Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
@@ -621,72 +632,95 @@ class TaskController extends Controller
     {
         Log::info('Entra a Buscar los estados en (category_status_priority)');
         //Estados
-        return Status::ofType('Task')->get()->map(function ($state) {
-            $getTranslatedStatus = $state->getTranslatedStatus();
-            return [
-                'id' => $state->id,
-                'nameStatus' => $getTranslatedStatus['name'],
-                'descriptionStatus' => $getTranslatedStatus['description'],
-                'colorStatus' => $state->color,
-                'iconStatus' => $state->icon
-            ];
-        });
+        try {
+            return Status::ofType('Task')->get()->map(function ($state) {
+                $getTranslatedStatus = $state->getTranslatedStatus();
+                return [
+                    'id' => $state->id,
+                    'nameStatus' => $getTranslatedStatus['name'],
+                    'descriptionStatus' => $getTranslatedStatus['description'],
+                    'colorStatus' => $state->color,
+                    'iconStatus' => $state->icon
+                ];
+            });
+        } catch (\Exception $e) {
+            Log::info('TaskController->getStatus');
+            Log::error($e->getMessage());
+        }
+        
 
     }
 
     private function getPriorities()
     {
         Log::info('Entra a Buscar Las prioridades en (category_status_priority)');
-        return Priority::all()->map(function ($priority) {
-            $translatedAttributes = $priority->getTranslatedAttributes();
-            return [
-                'id' => $priority->id,
-                'namePriority' => $translatedAttributes['name'],
-                'descriptionPriority' => $translatedAttributes['description'],
-                'colorPriority' => $priority->color,
-                'level' => $priority->level
-            ];
-        });
-
+        try {
+            return Priority::all()->map(function ($priority) {
+                $translatedAttributes = $priority->getTranslatedAttributes();
+                return [
+                    'id' => $priority->id,
+                    'namePriority' => $translatedAttributes['name'],
+                    'descriptionPriority' => $translatedAttributes['description'],
+                    'colorPriority' => $priority->color,
+                    'level' => $priority->level
+                ];
+            });
+        } catch (\Exception $e) {
+            Log::info('TaskController->getPriorities');
+            Log::error($e->getMessage());
+        }
+        
     }
 
     private function getPeople(){
         Log::info('Entra a Buscar Las personas asociadas al hogar (category_status_priority)');
-        return Person::with(['homes', 'roles'])->get()->map(function ($person) {
-            $firstHome = $person->homes->first();
-            $role = $firstHome ? $person->roles->where('id', $firstHome->pivot->role_id)->first() : null;
-                        //$gettranslatedRoles = $person->role->getTranslatedRoles();
-                        return [
-                            'id' => $person->id,
-                            'namePerson' => $person->name,
-                            'imagePerson' => $person->image,
-                            'rolId' => $role ? $role->id : null, // Asumiendo que hay un método `name` en Role
-                            'nameRole' => $role ? $role->name : 'Sin Rol', // Asumiendo que hay un método `name` en Role
-                        ];
-                    });
+        try {
+            return Person::with(['homes', 'roles'])->get()->map(function ($person) {
+                $firstHome = $person->homes->first();
+                $role = $firstHome ? $person->roles->where('id', $firstHome->pivot->role_id)->first() : null;
+                            //$gettranslatedRoles = $person->role->getTranslatedRoles();
+                            return [
+                                'id' => $person->id,
+                                'namePerson' => $person->name,
+                                'imagePerson' => $person->image,
+                                'rolId' => $role ? $role->id : null, // Asumiendo que hay un método `name` en Role
+                                'nameRole' => $role ? $role->name : 'Sin Rol', // Asumiendo que hay un método `name` en Role
+                            ];
+                        });
+        } catch (\Exception $e) {
+            Log::info('TaskController->getPeople');
+            Log::error($e->getMessage());
+        }
+        
     }
 
     private function getRecurrence()
     {
         Log::info('Entra a traducir la recurrencia (category_status_priority)');
-        // Definir el array de recurrencias
-        $recurrenceData = [
-            'Diaria',
-            'Semanal',
-            'Mensual',
-            'Anual',
-        ];
+        try {
+                // Definir el array de recurrencias
+            $recurrenceData = [
+                'Diaria',
+                'Semanal',
+                'Mensual',
+                'Anual',
+            ];
 
-        $result = []; // Inicializar el array de resultados
+            $result = []; // Inicializar el array de resultados
 
-       // Recorrer las recurrencias
-        foreach ($recurrenceData as $recurrence) {
-            $translatedRecurrence = $this->getTranslatedRecurrence($recurrence);
-            // Agregar la traducción al array resultante, pero como un valor plano
-            $result[] = $translatedRecurrence['recurrence'];
+        // Recorrer las recurrencias
+            foreach ($recurrenceData as $recurrence) {
+                $translatedRecurrence = $this->getTranslatedRecurrence($recurrence);
+                // Agregar la traducción al array resultante, pero como un valor plano
+                $result[] = $translatedRecurrence['recurrence'];
+            }
+
+            return $result;
+        } catch (\Exception $e) {
+            Log::info('TaskController->getRecurrence');
+            Log::error($e->getMessage());
         }
-
-        return $result;
+       
     }
 
     private function getTranslatedRecurrence($recurrence)
@@ -716,7 +750,8 @@ class TaskController extends Controller
 
     public function mapChildrenCategory($children, $personId)
     {
-        // Filtrar solo los hijos que estén relacionados con la persona o tengan state = 1
+        try {
+            // Filtrar solo los hijos que estén relacionados con la persona o tengan state = 1
         return $children->filter(function ($child) use ($personId) {
             // Verificamos si el hijo está relacionado con la persona o tiene state = 1
             return $child->people->contains('id', $personId) || $child->state == 1;
@@ -742,5 +777,10 @@ class TaskController extends Controller
                 'children' => $this->mapChildren($child->children, $personId), // Recursividad con personId
             ];
         });
+        } catch (\Exception $e) {
+            Log::info('TaskController->mapChildrenCategory');
+            Log::error($e->getMessage());
+        }
+        
     }
 }

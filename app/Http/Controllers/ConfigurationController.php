@@ -73,7 +73,8 @@ class ConfigurationController extends Controller
 
             return response()->json(['configurations' => $userConfig], 200);
         } catch (\Exception $e) {
-            Log::error('ConfigurationkController->Show: ' . $e->getMessage());
+            Log::info('ConfigurationkController->Show');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -174,7 +175,8 @@ class ConfigurationController extends Controller
 
             return response()->json(['msg' => 'ConfigurationkControllerOk', 'configuration' => $userConfig], 200);
         } catch (\Exception $e) {
-            Log::error('ConfigurationkController->updateOrCreate: '.$e->getMessage());
+            Log::info('ConfigurationkController->updateOrCreate');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }

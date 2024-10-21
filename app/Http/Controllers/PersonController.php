@@ -34,7 +34,8 @@ class PersonController extends Controller
 
             return response()->json(['people' => $people], 200);
         } catch (\Exception $e) {
-            Log::error('PeopleController->index: ' . $e->getMessage());
+            Log::info('PeopleController->index');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -87,7 +88,8 @@ class PersonController extends Controller
 
             return response()->json(['msg' => 'PersonCreated', 'person' => $person], 201);
         } catch (\Exception $e) {
-            Log::error('PeopleController->store: ' . $e->getMessage());
+            Log::info('PeopleController->store');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -121,7 +123,8 @@ class PersonController extends Controller
                 'image' => $person->image,
             ], 200);
         } catch (\Exception $e) {
-            Log::error('PeopleController->show: ' . $e->getMessage());
+            Log::info('PeopleController->show');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -178,7 +181,8 @@ class PersonController extends Controller
 
             return response()->json(['msg' => 'PersonUpdated', 'person' => $person], 200);
         } catch (\Exception $e) {
-            Log::error('PeopleController->update: ' . $e->getMessage());
+            Log::info('PeopleController->update');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -212,7 +216,8 @@ class PersonController extends Controller
 
             return response()->json(['msg' => 'PersonDeleted'], 200);
         } catch (\Exception $e) {
-            Log::error('PeopleController->destroy: ' . $e->getMessage());
+            Log::info('PeopleController->destroy');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }

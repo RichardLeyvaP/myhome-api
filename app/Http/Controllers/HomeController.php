@@ -40,7 +40,8 @@ class HomeController extends Controller
 
             return response()->json(['homes' => $homes], 200);
         } catch (\Exception $e) {
-            Log::error('HomeController->index: ' . $e->getMessage());
+            Log::info('HomeController->index');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -91,7 +92,8 @@ class HomeController extends Controller
 
             return response()->json(['msg' => 'HomeCreated', 'home' => $home], 201);
         } catch (\Exception $e) {
-            Log::error('HomeController->store: ' . $e->getMessage());
+            Log::info('HomeController->store');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -129,7 +131,8 @@ class HomeController extends Controller
                 'image' => $home->image,
             ], 200);
         } catch (\Exception $e) {
-            Log::error('HomeController->show: ' . $e->getMessage());
+            Log::info('HomeController->show');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -192,7 +195,8 @@ class HomeController extends Controller
 
             return response()->json(['msg' => 'HomeUpdated', 'home' => $home], 200);
         } catch (\Exception $e) {
-            Log::error('HomeController->update: ' . $e->getMessage());
+            Log::info('HomeController->update');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -226,7 +230,8 @@ class HomeController extends Controller
 
             return response()->json(['msg' => 'HomeDeleted'], 200);
         } catch (\Exception $e) {
-            Log::error('HomeController->destroy: ' . $e->getMessage());
+            Log::info('HomeController->destroy');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }

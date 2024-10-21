@@ -52,7 +52,7 @@ class CategoryPersonController extends Controller
             return response()->json(['categories' => $categories], 200);
         } catch (\Exception $e) {
             Log::info('CategoryPersonController->index');
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -137,7 +137,7 @@ class CategoryPersonController extends Controller
             return response()->json(['msg' => 'CategoryPersonStoreOk', 'category' => $category], 201);
         } catch (\Exception $e) {
             Log::info('CategoryPersonController->store');
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -189,7 +189,7 @@ class CategoryPersonController extends Controller
             return response()->json(['category' => $category], 200);
         } catch (\Exception $e) {
             Log::info('CategoryPersonController->show');
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -248,7 +248,7 @@ class CategoryPersonController extends Controller
             return response()->json(['msg' => 'CategoryPersonUpdateOk', 'category' => $category], 200);
         } catch (\Exception $e) {
             Log::info('CategoryPersonController->update');
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }

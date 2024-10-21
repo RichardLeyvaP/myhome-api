@@ -31,7 +31,8 @@ class HomeTypeController extends Controller
 
             return response()->json(['hometypes' => $translatedHomeTypes], 200);
         } catch (\Exception $e) {
-            Log::error('HomeTypeController->index: ' . $e->getMessage());
+            Log::info('HomeTypeController->index');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -60,7 +61,8 @@ class HomeTypeController extends Controller
 
             return response()->json(['msg' => 'HomeTypeCreatedSuccessfully', 'hometype' => $hometype], 201);
         } catch (\Exception $e) {
-            Log::error('HomeTypeController->store: ' . $e->getMessage());
+            Log::info('HomeTypeController->store');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -95,7 +97,8 @@ class HomeTypeController extends Controller
 
             return response()->json(['hometype' => $hometype], 200);
         } catch (\Exception $e) {
-            Log::error('HomeTypeController->show: ' . $e->getMessage());
+            Log::info('HomeTypeController->show');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -130,7 +133,8 @@ class HomeTypeController extends Controller
 
             return response()->json(['msg' => 'HomeTypeUpdatedSuccessfully', 'hometype' => $hometype], 200);
         } catch (\Exception $e) {
-            Log::error('HomeTypeController->update: ' . $e->getMessage());
+            Log::info('HomeTypeController->update');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -158,7 +162,8 @@ class HomeTypeController extends Controller
 
             return response()->json(['msg' => 'HomeTypeDeletedSuccessfully'], 200);
         } catch (\Exception $e) {
-            Log::error('HomeTypeController->destroy: ' . $e->getMessage());
+            Log::info('HomeTypeController->destroy');
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }

@@ -32,7 +32,7 @@ class PriorityController extends Controller
             return response()->json(['priorities' => $translatedPriorities], 200);
         } catch (\Exception $e) {
             Log::info('PriorityController->index');
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -64,7 +64,7 @@ class PriorityController extends Controller
             return response()->json(['msg' => 'PrioritiesStoreOk', 'Priorities' => $priorities], 201);
         } catch (\Exception $e) {
             Log::info('PriorityController->store');
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -97,7 +97,7 @@ class PriorityController extends Controller
             return response()->json(['Priorities' => $priorities], 200);
         } catch (\Exception $e) {
             Log::info('PriorityController->show');
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -135,7 +135,7 @@ class PriorityController extends Controller
             return response()->json(['msg' => 'PriorityUpdateOk', 'Priorities' => $priorities], 200);
         } catch (\Exception $e) {
             Log::info('PriorityController->update');
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
@@ -162,7 +162,7 @@ class PriorityController extends Controller
             return response()->json(['msg' => 'PriorityDeleteOk'], 200);
         } catch (\Exception $e) {
             Log::info('PriorityController->destroy');
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
             return response()->json(['error' => 'ServerError'], 500);
         }
     }
